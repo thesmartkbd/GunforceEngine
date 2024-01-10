@@ -1,0 +1,10 @@
+﻿CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
+PROJECT("GunforceEngine")
+
+INCLUDE_DIRECTORIES(SYSTEM
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Include"
+)
+
+ADD_EXECUTABLE(${PROJECT_NAME}
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Main.cpp"
+)
