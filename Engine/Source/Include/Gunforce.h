@@ -48,3 +48,9 @@
 #ifndef GUNFORCE_ENABLE_ENGINE_DEBUG
 #  define GUNFORCE_ENABLE_ENGINE_DEBUG
 #endif
+
+/* 日志打印 */
+#define GUNFORCE_PRINT_LOGGER_INFO(...) Logger::Info(__VA_ARGS__)
+#define GUNFORCE_PRINT_LOGGER_DEBUG(...) Logger::Debug(__VA_ARGS__)
+#define GUNFORCE_PRINT_LOGGER_WARN(...) Logger::Warn(__VA_ARGS__)
+#define GUNFORCE_PRINT_LOGGER_ERROR(...) Logger::Error(__VA_ARGS__)

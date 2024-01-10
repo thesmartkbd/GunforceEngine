@@ -32,9 +32,33 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include <Gunforce.h>
+
+class GunforceWindow;
 
 class VulkanContext {
 public:
-    VulkanContext();
+    VulkanContext(GunforceWindow *p_window);
     ~VulkanContext();
+
+private:
+    void _InitVulkanContextInstance();
+    void _InitVulkanContextSurface();
+    void _InitVulkanContextDevice();
+    void _InitVulkanContextSwapchain();
+
+private:
+    VkInstance m_Instance;
+    VkSurfaceKHR m_Surface;
+    VkDevice m_Device;
+    VkSwapchainKHR m_Swapchain;
+
+    GunforceWindow* m_GunforceWindow;
+    VkPhysicalDevice m_PhysicalDevice;
+    VkPhysicalDeviceProperties m_PhysicalDeviceProperties;
+    VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;
+    uint32_t m_GraphicsQueueFamilyIndex;
+    VkQueue m_GraphicsQueue;
+    uint32_t m_PresentQueueFamilyIndex;
+    VkQueue m_PresentQueue;
 };

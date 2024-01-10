@@ -35,8 +35,8 @@
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#include <Logger.h>
 #include <GLFW/glfw3.h>
+#include <Gunforce.h>
 
 class GunforceWindow;
 
@@ -48,9 +48,10 @@ public:
     ~GunforceWindow();
 
 public:
-    uint32_t GetWidth() const;
-    uint32_t GetHeight() const;
-    bool IsShouldClose() const;
+    GLFWwindow* GetNativeWindow() const { return m_HWIN; };
+    uint32_t GetWidth() const { return m_Width; };
+    uint32_t GetHeight() const { return m_Height; };
+    bool IsShouldClose() const { return glfwWindowShouldClose(m_HWIN); };
     size_t AddResizeEventCallback(PFN_WindowResizeEventCallback callback);
     void RemoveResizeEventCalback(size_t index);
 

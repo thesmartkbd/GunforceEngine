@@ -41,7 +41,7 @@ GunforceWindow::GunforceWindow(uint32_t width, uint32_t height, const char* titl
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     if ((m_HWIN = glfwCreateWindow(width, height, title, null, null)) == null)
-        Logger::Error("Create glfw3 window failed!");
+        GUNFORCE_PRINT_LOGGER_ERROR("Create glfw3 window failed!");
 
     glfwSetWindowUserPointer(m_HWIN, this);
 
@@ -56,21 +56,6 @@ GunforceWindow::~GunforceWindow()
 {
     glfwDestroyWindow(m_HWIN);
     glfwTerminate();
-}
-
-uint32_t GunforceWindow::GetWidth() const
-{
-    return m_Width;
-}
-
-uint32_t GunforceWindow::GetHeight() const
-{
-    return m_Height;
-}
-
-bool GunforceWindow::IsShouldClose() const
-{
-    return glfwWindowShouldClose(m_HWIN);
 }
 
 size_t GunforceWindow::AddResizeEventCallback(PFN_WindowResizeEventCallback callback)

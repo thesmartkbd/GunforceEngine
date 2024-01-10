@@ -31,7 +31,6 @@
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-// aurora
 #include <Gunforce.h>
 #include <IOUtils.h>
 
@@ -40,7 +39,7 @@
     { \
         VkResult ret = vkCreate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
+            Logger::Error("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VulkanUtils::GetVkResultStatusName(ret)); \
     }
 
 /* 检查 vulkan 对象是否分配成功 */
@@ -48,10 +47,10 @@
     { \
         VkResult ret = vkAllocate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
+            Logger::Error("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VulkanUtils::GetVkResultStatusName(ret)); \
     }
 
-namespace VkUtils
+namespace VulkanUtils
 {
     /* VK 分配器 */
     static VkAllocationCallbacks *Allocator = null;
@@ -136,9 +135,9 @@ namespace VkUtils
         vkEnumerateInstanceExtensionProperties(null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        Logger::Debug("Vulkan instance support extension properties: ");
+        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan instance support extension properties: ");
         for (const auto &property : properties)
-            Logger::Debug("  - {}", property.extensionName);
+            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.extensionName);
     }
 
     static void EnumerateInstanceLayerProperties(Vector<VkLayerProperties> &properties)
@@ -149,9 +148,9 @@ namespace VkUtils
         vkEnumerateInstanceLayerProperties(&count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        Logger::Debug("Vulkan instance support layer properties: ");
+        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan instance support layer properties: ");
         for (const auto &property : properties)
-            Logger::Debug("  - {}", property.layerName);
+            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.layerName);
     }
 
     static void GetBestPerformancePhysicalDevice(VkInstance instance, VkPhysicalDevice *pPhysicalDevice)
@@ -162,11 +161,11 @@ namespace VkUtils
         devices.resize(count);
         vkEnumeratePhysicalDevices(instance, &count, std::data(devices));
 
-        Logger::Debug("Vulkan available physical device properties: ");
+        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan available physical device properties: ");
         for (const auto &device : devices) {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(device, &properties);
-            Logger::Debug("  - {}", properties.deviceName);
+            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", properties.deviceName);
         }
 
         *pPhysicalDevice = devices[0];
@@ -174,8 +173,10 @@ namespace VkUtils
 
     static void GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties *pProperties, VkPhysicalDeviceFeatures *pFeatures)
     {
-        vkGetPhysicalDeviceProperties(device, pProperties);
-        vkGetPhysicalDeviceFeatures(device, pFeatures);
+        if (pProperties != null)
+            vkGetPhysicalDeviceProperties(device, pProperties);
+        if (pFeatures != null)
+            vkGetPhysicalDeviceFeatures(device, pFeatures);
     }
 
     static void EnumerateDeviceExtensionProperties(VkPhysicalDevice device, Vector<VkExtensionProperties> &properties)
@@ -186,9 +187,9 @@ namespace VkUtils
         vkEnumerateDeviceExtensionProperties(device, null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        Logger::Debug("Vulkan device support extension properties: ");
+        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan device support extension properties: ");
         for (const auto &property : properties)
-            Logger::Debug("  - {}", property.extensionName);
+            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.extensionName);
     }
 
     static void EnumerateDeviceLayerProperties(VkPhysicalDevice device, Vector<VkLayerProperties> &properties)
@@ -199,9 +200,9 @@ namespace VkUtils
         vkEnumerateDeviceLayerProperties(device, &count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        Logger::Debug("Vulkan device support layer properties: ");
+        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan device support layer properties: ");
         for (const auto &property : properties)
-            Logger::Debug("  - {}", property.layerName);
+            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.layerName);
     }
 
     static void FindQueueFamilyIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, QueueFamilyIndices *pQueueFamilyIndices)
@@ -241,7 +242,7 @@ namespace VkUtils
 
         uint32_t glfwRequiredInstanceExtensionCount;
         const char **glfwRequiredInstanceExtensions = glfwGetRequiredInstanceExtensions(&glfwRequiredInstanceExtensionCount);
-        for (int i = 0; i < glfwRequiredInstanceExtensionCount; ++i)
+        for (uint32_t i = 0; i < glfwRequiredInstanceExtensionCount; ++i)
             required.push_back(glfwRequiredInstanceExtensions[i]);
     }
 
@@ -289,7 +290,7 @@ namespace VkUtils
         shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t *>(buf);
         shaderModuleCreateInfo.codeSize = size;
-        vkCheckCreate(ShaderModule, device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
+        vkCheckCreate(ShaderModule, device, &shaderModuleCreateInfo, VulkanUtils::Allocator, pShaderModule);
         IOUtils::Free(buf);
     }
 

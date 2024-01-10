@@ -59,6 +59,7 @@ LINK_DIRECTORIES(
 ADD_EXECUTABLE(${PROJECT_NAME}
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Main.cpp"
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Window/GunforceWindow.cpp"
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp"
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}

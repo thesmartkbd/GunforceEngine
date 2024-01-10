@@ -67,7 +67,7 @@ namespace Logger
     template<typename ...Args>
     static void Info(std::string_view fmt, Args&& ...args)
     {
-        _vprintlog("INFO ", fmt, ASCII_COLOR_BLUE, std::make_format_args(args...));
+        _vprintlog("INFO ", fmt, ASCII_COLOR_GREEN, std::make_format_args(args...));
     }
 
     template<typename ...Args>
