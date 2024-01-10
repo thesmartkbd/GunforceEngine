@@ -36,7 +36,7 @@
 
 class GunforceWindow;
 
-class VulkanContext {
+class GUNFORCEAPI VulkanContext {
 public:
     VulkanContext(GunforceWindow *p_window);
     ~VulkanContext();

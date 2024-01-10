@@ -135,9 +135,9 @@ namespace VulkanUtils
         vkEnumerateInstanceExtensionProperties(null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan instance support extension properties: ");
+        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan instance support extension properties: ");
         for (const auto &property : properties)
-            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.extensionName);
+            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.extensionName);
     }
 
     static void EnumerateInstanceLayerProperties(Vector<VkLayerProperties> &properties)
@@ -148,9 +148,9 @@ namespace VulkanUtils
         vkEnumerateInstanceLayerProperties(&count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan instance support layer properties: ");
+        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan instance support layer properties: ");
         for (const auto &property : properties)
-            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.layerName);
+            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.layerName);
     }
 
     static void GetBestPerformancePhysicalDevice(VkInstance instance, VkPhysicalDevice *pPhysicalDevice)
@@ -161,11 +161,11 @@ namespace VulkanUtils
         devices.resize(count);
         vkEnumeratePhysicalDevices(instance, &count, std::data(devices));
 
-        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan available physical device properties: ");
+        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan available physical device properties: ");
         for (const auto &device : devices) {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(device, &properties);
-            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", properties.deviceName);
+            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", properties.deviceName);
         }
 
         *pPhysicalDevice = devices[0];
@@ -187,9 +187,9 @@ namespace VulkanUtils
         vkEnumerateDeviceExtensionProperties(device, null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan device support extension properties: ");
+        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan device support extension properties: ");
         for (const auto &property : properties)
-            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.extensionName);
+            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.extensionName);
     }
 
     static void EnumerateDeviceLayerProperties(VkPhysicalDevice device, Vector<VkLayerProperties> &properties)
@@ -200,9 +200,9 @@ namespace VulkanUtils
         vkEnumerateDeviceLayerProperties(device, &count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        GUNFORCE_PRINT_LOGGER_DEBUG("Vulkan device support layer properties: ");
+        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan device support layer properties: ");
         for (const auto &property : properties)
-            GUNFORCE_PRINT_LOGGER_DEBUG("  - {}", property.layerName);
+            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.layerName);
     }
 
     static void FindQueueFamilyIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, QueueFamilyIndices *pQueueFamilyIndices)

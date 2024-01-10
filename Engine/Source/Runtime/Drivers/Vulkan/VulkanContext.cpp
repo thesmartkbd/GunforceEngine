@@ -35,12 +35,12 @@
 
 VulkanContext::VulkanContext(GunforceWindow *p_window) : m_GunforceWindow(p_window)
 {
-    GUNFORCE_PRINT_LOGGER_INFO("VulkanContext initialize begin!");
+    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext initialize begin!");
     _InitVulkanContextInstance();
     _InitVulkanContextSurface();
     _InitVulkanContextDevice();
     _InitVulkanContextSwapchain();
-    GUNFORCE_PRINT_LOGGER_INFO("VulkanContext initialize end!");
+    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext initialize end!");
 }
 
 VulkanContext::~VulkanContext()
@@ -65,17 +65,17 @@ void VulkanContext::_InitVulkanContextInstance()
 
     Vector<const char*> extensions;
     VulkanUtils::GetInstanceRequiredEnableExtensionProperties(extensions);
-    GUNFORCE_PRINT_LOGGER_INFO("VulkanContext instance enable extension list:");
+    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext instance enable extension list:");
     for (const auto& extension : extensions)
-        GUNFORCE_PRINT_LOGGER_INFO("  - {}", extension);
+        GUNFORCE_CONSOLE_LOGGER_INFO("  - {}", extension);
     instanceCreateInfo.enabledExtensionCount = std::size(extensions);
     instanceCreateInfo.ppEnabledExtensionNames = std::data(extensions);
 
     Vector<const char*> layers;
     VulkanUtils::GetInstanceRequiredEnableLayerProperties(layers);
-    GUNFORCE_PRINT_LOGGER_INFO("VulkanContext instance enable layer list:");
+    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext instance enable layer list:");
     for (const auto& layer : layers)
-        GUNFORCE_PRINT_LOGGER_INFO("  - {}", layer);
+        GUNFORCE_CONSOLE_LOGGER_INFO("  - {}", layer);
     instanceCreateInfo.enabledLayerCount = std::size(layers);
     instanceCreateInfo.ppEnabledLayerNames = std::data(layers);
 
@@ -91,7 +91,7 @@ void VulkanContext::_InitVulkanContextDevice()
 {
     VulkanUtils::GetBestPerformancePhysicalDevice(m_Instance, &m_PhysicalDevice);
     VulkanUtils::GetPhysicalDeviceProperties(m_PhysicalDevice, &m_PhysicalDeviceProperties, &m_PhysicalDeviceFeatures);
-    GUNFORCE_PRINT_LOGGER_INFO("VulkanContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
+    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
 
     VulkanUtils::QueueFamilyIndices queueFamilyIndices;
     VulkanUtils::FindQueueFamilyIndices(m_PhysicalDevice, m_Surface, &queueFamilyIndices);

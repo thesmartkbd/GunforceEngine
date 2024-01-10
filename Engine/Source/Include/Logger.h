@@ -43,7 +43,9 @@
 
 namespace Logger
 {
-    static void _vprintlog(std::string_view level, std::string_view fmt, std::string_view color, std::format_args args)
+    static void _vprintlog(std::string_view _module, std::string_view level, std::string_view fmt,
+                           std::string_view color,
+                           std::format_args args)
     {
         /*
          * color
@@ -54,8 +56,9 @@ namespace Logger
          */
         char time[32];
         Date::Format(time, "%Y-%m-%d %H:%M:%S", sizeof(time));
-        std::string preprocessor = strifmtc("{} [GunforceEngine] [{}{}{}] - {}",
+        std::string preprocessor = strifmtc("{} [{}] [{}{}{}] - {}",
                                             time,
+                                            _module,
                                             color,
                                             level,
                                             ASCII_COLOR_RESET,
@@ -65,27 +68,27 @@ namespace Logger
     }
 
     template<typename ...Args>
-    static void Info(std::string_view fmt, Args&& ...args)
+    static void Info(std::string_view _module, std::string_view fmt, Args&& ...args)
     {
-        _vprintlog("INFO ", fmt, ASCII_COLOR_GREEN, std::make_format_args(args...));
+        _vprintlog(_module, "INFO ", fmt, ASCII_COLOR_GREEN, std::make_format_args(args...));
     }
 
     template<typename ...Args>
-    static void Debug(std::string_view fmt, Args&& ...args)
+    static void Debug(std::string_view _module, std::string_view fmt, Args&& ...args)
     {
-        _vprintlog("DEBUG", fmt, ASCII_COLOR_BLUE, std::make_format_args(args...));
+        _vprintlog(_module, "DEBUG", fmt, ASCII_COLOR_BLUE, std::make_format_args(args...));
     }
 
     template<typename ...Args>
-    static void Warn(std::string_view fmt, Args&& ...args)
+    static void Warn(std::string_view _module, std::string_view fmt, Args&& ...args)
     {
-        _vprintlog("WARN ", fmt, ASCII_COLOR_YELLOW, std::make_format_args(args...));
+        _vprintlog(_module, "WARN ", fmt, ASCII_COLOR_YELLOW, std::make_format_args(args...));
     }
 
     template<typename ...Args>
-    static void Error(std::string_view fmt, Args&& ...args)
+    static void Error(std::string_view _module, std::string_view fmt, Args&& ...args)
     {
-        _vprintlog("ERROR", fmt, ASCII_COLOR_RED, std::make_format_args(args...));
+        _vprintlog(_module, "ERROR", fmt, ASCII_COLOR_RED, std::make_format_args(args...));
     }
 
 }

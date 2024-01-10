@@ -50,7 +50,7 @@
 #endif
 
 /* 日志打印 */
-#define GUNFORCE_PRINT_LOGGER_INFO(...) Logger::Info(__VA_ARGS__)
-#define GUNFORCE_PRINT_LOGGER_DEBUG(...) Logger::Debug(__VA_ARGS__)
-#define GUNFORCE_PRINT_LOGGER_WARN(...) Logger::Warn(__VA_ARGS__)
-#define GUNFORCE_PRINT_LOGGER_ERROR(...) Logger::Error(__VA_ARGS__)
+#define GUNFORCE_CONSOLE_LOGGER_INFO(...) Logger::Info(GUNFORCE_ENGINE_NAME, __VA_ARGS__)
+#define GUNFORCE_CONSOLE_LOGGER_DEBUG(...) Logger::Debug(GUNFORCE_ENGINE_NAME, __VA_ARGS__)
+#define GUNFORCE_CONSOLE_LOGGER_WARN(...) Logger::Warn(GUNFORCE_ENGINE_NAME, __VA_ARGS__)
+#define GUNFORCE_CONSOLE_LOGGER_ERROR(...) Logger::Error(GUNFORCE_ENGINE_NAME, __VA_ARGS__)
