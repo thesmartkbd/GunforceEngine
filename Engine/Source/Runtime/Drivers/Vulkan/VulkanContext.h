@@ -1,8 +1,4 @@
 /* -------------------------------------------------------------------------------- *\
-|*                               Gunforce Engine                                    *|
-\* -------------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
 |*    Copyright (C) 2023 bit-fashion                                                *|
 |*                                                                                  *|
@@ -27,57 +23,18 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           Window.cpp                                                       *|
-|* Create Time:    2024/01/10 16:59                                                 *|
+|* File:           VulkanContext.h                                                  *|
+|* Create Time:    2024/01/03 01:35                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
-#include "Window.h"
+#pragma once
 
-GunforceWindow::GunforceWindow(uint32_t width, uint32_t height, const char* title) : m_Width(width), m_Height(height)
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#include <vulkan/vulkan.h>
 
-    if ((m_HWIN = glfwCreateWindow(width, height, title, null, null)) == null)
-        Logger::Error("Create glfw3 window failed!");
-
-    glfwSetWindowUserPointer(m_HWIN, this);
-
-    glfwSetWindowSizeCallback(m_HWIN, [](GLFWwindow *p_glwin, int w, int h) {
-        glfwGetWindowUserPointer(p_glwin);
-    });
-}
-
-GunforceWindow::~GunforceWindow()
-{
-    glfwDestroyWindow(m_HWIN);
-    glfwTerminate();
-}
-
-uint32_t GunforceWindow::GetWidth()
-{
-    return m_Width;
-}
-
-uint32_t GunforceWindow::GetHeight()
-{
-    return m_Height;
-}
-
-bool GunforceWindow::IsShouldClose()
-{
-    return glfwWindowShouldClose(m_HWIN);
-}
-
-size_t GunforceWindow::AddWindowResizeEventCallback(PFN_WindowResizeEventCallback callback)
-{
-    m_WindowResizeEventCallbacks.push_back(callback);
-    return std::size(m_WindowResizeEventCallbacks);
-}
-
-void GunforceWindow::RemoveWindowResizeEventCalback(size_t index)
-{
-    m_WindowResizeEventCallbacks.remove(index);
-}
+class VulkanContext {
+public:
+    VulkanContext();
+    ~VulkanContext();
+};

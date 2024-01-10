@@ -27,7 +27,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           GunforceWindow.cpp                                                       *|
+|* File:           GunforceWindow.cpp                                               *|
 |* Create Time:    2024/01/10 16:59                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
@@ -46,9 +46,9 @@ GunforceWindow::GunforceWindow(uint32_t width, uint32_t height, const char* titl
     glfwSetWindowUserPointer(m_HWIN, this);
 
     glfwSetWindowSizeCallback(m_HWIN, [](GLFWwindow *p_glwin, int w, int h) {
-        GunforceWindow *p_gunforce_window = (GunforceWindow *) glfwGetWindowUserPointer(p_glwin);
-        for (const auto& callback : p_gunforce_window->m_WindowResizeEventCallbacks)
-            callback(p_gunforce_window, w, h);
+        auto *window = (GunforceWindow *) glfwGetWindowUserPointer(p_glwin);
+        for (const auto& callback : window->m_WindowResizeEventCallbacks)
+            callback(window, w, h);
     });
 }
 
@@ -58,28 +58,28 @@ GunforceWindow::~GunforceWindow()
     glfwTerminate();
 }
 
-uint32_t GunforceWindow::GetWidth()
+uint32_t GunforceWindow::GetWidth() const
 {
     return m_Width;
 }
 
-uint32_t GunforceWindow::GetHeight()
+uint32_t GunforceWindow::GetHeight() const
 {
     return m_Height;
 }
 
-bool GunforceWindow::IsShouldClose()
+bool GunforceWindow::IsShouldClose() const
 {
     return glfwWindowShouldClose(m_HWIN);
 }
 
-size_t GunforceWindow::AddWindowResizeEventCallback(PFN_WindowResizeEventCallback callback)
+size_t GunforceWindow::AddResizeEventCallback(PFN_WindowResizeEventCallback callback)
 {
     m_WindowResizeEventCallbacks.push_back(callback);
     return std::size(m_WindowResizeEventCallbacks);
 }
 
-void GunforceWindow::RemoveWindowResizeEventCalback(size_t index)
+void GunforceWindow::RemoveResizeEventCalback(size_t index)
 {
     m_WindowResizeEventCallbacks.remove(index);
 }

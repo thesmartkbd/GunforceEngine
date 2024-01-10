@@ -40,9 +40,9 @@ int main()
 	/* 设置控制台中文字符 */
 	system("chcp 65001");
 
-	std::unique_ptr<GunforceWindow> gunforceWindow = std::make_unique<GunforceWindow>(800, 600, "枪神引擎");
+	std::unique_ptr<GunforceWindow> window = std::make_unique<GunforceWindow>(800, 600, "枪神引擎");
 
-	while (!gunforceWindow->IsShouldClose()) {
+	while (!window->IsShouldClose()) {
 		GunforceWindow::PollEvents();
 	}
 

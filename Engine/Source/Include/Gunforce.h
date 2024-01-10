@@ -27,7 +27,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           Engine.h                                                         *|
+|* File:           Gunforce.h                                                       *|
 |* Create Time:    2024/01/03 01:22                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
@@ -35,9 +35,16 @@
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#define AURORA_ENGINE_NAME "AuroraEngine"
+#include <Typedef.h>
+#include <Logger.h>
+
+#define GUNFORCE_ENGINE_NAME "GunforceEngine"
+
+#ifndef GUNFORCEAPI
+#  define GUNFORCEAPI
+#endif
 
 /* 开启引擎调试 */
-#ifndef AURORA_ENGINE_ENABLE_DEBUG
-#  define AURORA_ENGINE_ENABLE_DEBUG
+#ifndef GUNFORCE_ENABLE_ENGINE_DEBUG
+#  define GUNFORCE_ENABLE_ENGINE_DEBUG
 #endif

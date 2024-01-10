@@ -27,7 +27,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           Window.h                                                         *|
+|* File:           GunforceWindow.h                                                 *|
 |* Create Time:    2024/01/10 16:59                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
@@ -48,17 +48,18 @@ public:
     ~GunforceWindow();
 
 public:
-    uint32_t GetWidth();
-    uint32_t GetHeight();
-    bool IsShouldClose();
-    size_t AddWindowResizeEventCallback(PFN_WindowResizeEventCallback callback);
-    void RemoveWindowResizeEventCalback(size_t index);
+    uint32_t GetWidth() const;
+    uint32_t GetHeight() const;
+    bool IsShouldClose() const;
+    size_t AddResizeEventCallback(PFN_WindowResizeEventCallback callback);
+    void RemoveResizeEventCalback(size_t index);
 
 public:
     /* 事件轮询 */
     static void PollEvents()
       {
-        glfwPollEvents();
+        glfwPollEvents()
+            ;
       }
 
 private:

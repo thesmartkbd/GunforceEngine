@@ -35,14 +35,13 @@
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#include <malloc.h>
+#include <Typedef.h>
 #include <fstream>
-#include <vector>
 #include <stdexcept>
 
 namespace IOUtils {
 
-    static char *ReadBuf(const char *filepath, size_t *size) {
+    static char *ReadFile(const char *filepath, size_t *size) {
         std::ifstream file(filepath, std::ios::ate | std::ios::binary);
         if (!file.is_open())
             throw std::runtime_error("Error: open file failed!");
@@ -57,7 +56,8 @@ namespace IOUtils {
         return buf;
     }
 
-    static void FreeBuf(char *binaries) {
+    __forceinline__
+    static void Free(char *binaries) {
         free(binaries);
     }
 
