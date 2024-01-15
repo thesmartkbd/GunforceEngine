@@ -38,57 +38,64 @@
 #include "Color.h"
 #include "System.h"
 #include "Date.h"
+#include "IOUtils.h"
 // std
 #include <stdexcept>
 
 namespace Logger
 {
-    static void _vprintlog(std::string_view _module, std::string_view level, std::string_view fmt,
-                           std::string_view color,
-                           std::format_args args)
+    static void _logger_console_write(const char *level, const char *color, const char * caller, const char* file, int line, const char *fmt, va_list va)
     {
-        /*
-         * color
-         * datetime
-         * function
-         * fmt
-         * level
-         */
         char time[32];
         Date::Format(time, "%Y-%m-%d %H:%M:%S", sizeof(time));
-        std::string preprocessor = strifmtc("{} [{}] [{}{}{}] - {}",
-                                            time,
-                                            _module,
-                                            color,
-                                            level,
-                                            ASCII_COLOR_RESET,
-                                            fmt);
-        /* println */
-        System::VaConsoleWrite(preprocessor, args);
+#ifdef ENABLE_LOGGER_TRACE
+        System::ConsoleWrite("%s %s%s%s [%s] %s(%d): %s", time, color, level, ASCII_COLOR_RESET, caller, file, line, tochr(vstrifmt(fmt, va)));
+#else
+        System::ConsoleWrite("%s %s%s%s: %s", time, color, level, ASCII_COLOR_RESET, tochr(vstrifmt(fmt, va)));
+#endif
     }
 
-    template<typename ...Args>
-    static void Info(std::string_view _module, std::string_view fmt, Args&& ...args)
+    static void Info(const char *caller, const char *file, int line, const char *fmt, ...)
     {
-        _vprintlog(_module, "INFO ", fmt, ASCII_COLOR_GREEN, std::make_format_args(args...));
+        va_list va;
+        va_start(va, fmt);
+        _logger_console_write("INFO ", ASCII_COLOR_GREEN, caller, file, line, fmt, va);
+        va_end(va);
     }
 
-    template<typename ...Args>
-    static void Debug(std::string_view _module, std::string_view fmt, Args&& ...args)
+    static void Debug(const char* caller, const char* file, int line, const char* fmt, ...)
     {
-        _vprintlog(_module, "DEBUG", fmt, ASCII_COLOR_BLUE, std::make_format_args(args...));
+        va_list va;
+        va_start(va, fmt);
+        _logger_console_write("DEBUG", ASCII_COLOR_BLUE, caller, file, line, fmt, va);
+        va_end(va);
     }
 
-    template<typename ...Args>
-    static void Warn(std::string_view _module, std::string_view fmt, Args&& ...args)
+    static void Warn(const char* caller, const char* file, int line, const char* fmt, ...)
     {
-        _vprintlog(_module, "WARN ", fmt, ASCII_COLOR_YELLOW, std::make_format_args(args...));
+        va_list va;
+        va_start(va, fmt);
+        _logger_console_write("WARN ", ASCII_COLOR_YELLOW, caller, file, line, fmt, va);
+        va_end(va);
     }
 
-    template<typename ...Args>
-    static void Error(std::string_view _module, std::string_view fmt, Args&& ...args)
+    static void Error(const char* caller, const char* file, int line, const char* fmt, ...)
     {
-        _vprintlog(_module, "ERROR", fmt, ASCII_COLOR_RED, std::make_format_args(args...));
+        va_list va;
+        va_start(va, fmt);
+        _logger_console_write("ERROR", ASCII_COLOR_RED, caller, file, line, fmt, va);
+        va_end(va);
     }
-
 }
+
+#if defined(ENABLE_LOGGER_WRITE)
+#  define LOGGER_WRITE_INFO(fmt, ...)  Logger::Info (__FUNCTION__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#  define LOGGER_WRITE_DEBUG(fmt, ...) Logger::Debug(__FUNCTION__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#  define LOGGER_WRITE_WARN(fmt, ...)  Logger::Warn (__FUNCTION__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#  define LOGGER_WRITE_ERROR(fmt, ...) Logger::Error(__FUNCTION__, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#else
+#  define LOGGER_WRITE_INFO(fmt, ...)
+#  define LOGGER_WRITE_DEBUG(fmt, ...)
+#  define LOGGER_WRITE_WARN(fmt, ...)
+#  define LOGGER_WRITE_ERROR(fmt, ...)
+#endif

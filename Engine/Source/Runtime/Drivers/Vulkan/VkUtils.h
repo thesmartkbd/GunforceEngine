@@ -39,7 +39,7 @@
     { \
         VkResult ret = vkCreate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
+            LOGGER_WRITE_ERROR("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
     }
 
 /* 检查 vulkan 对象是否分配成功 */
@@ -47,7 +47,7 @@
     { \
         VkResult ret = vkAllocate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
+            LOGGER_WRITE_ERROR("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
     }
 
 namespace VkUtils
@@ -135,9 +135,9 @@ namespace VkUtils
         vkEnumerateInstanceExtensionProperties(null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan instance support extension properties: ");
+        LOGGER_WRITE_DEBUG("Vulkan instance support extension properties: ");
         for (const auto &property : properties)
-            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.extensionName);
+            LOGGER_WRITE_DEBUG("  - %s", property.extensionName);
     }
 
     static void EnumerateInstanceLayerProperties(Vector<VkLayerProperties> &properties)
@@ -148,9 +148,9 @@ namespace VkUtils
         vkEnumerateInstanceLayerProperties(&count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan instance support layer properties: ");
+        LOGGER_WRITE_DEBUG("Vulkan instance support layer properties: ");
         for (const auto &property : properties)
-            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.layerName);
+            LOGGER_WRITE_DEBUG("  - %s", property.layerName);
     }
 
     static void GetBestPerformancePhysicalDevice(VkInstance instance, VkPhysicalDevice *pPhysicalDevice)
@@ -161,11 +161,11 @@ namespace VkUtils
         devices.resize(count);
         vkEnumeratePhysicalDevices(instance, &count, std::data(devices));
 
-        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan available physical device properties: ");
+        LOGGER_WRITE_DEBUG("Vulkan available physical device properties: ");
         for (const auto &device : devices) {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(device, &properties);
-            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", properties.deviceName);
+            LOGGER_WRITE_DEBUG("  - %s", properties.deviceName);
         }
 
         *pPhysicalDevice = devices[0];
@@ -187,9 +187,9 @@ namespace VkUtils
         vkEnumerateDeviceExtensionProperties(device, null, &count, std::data(properties));
 
         /* 遍历 extension 属性列表 */
-        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan device support extension properties: ");
+        LOGGER_WRITE_DEBUG("Vulkan device support extension properties: ");
         for (const auto &property : properties)
-            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.extensionName);
+            LOGGER_WRITE_DEBUG("  - %s", property.extensionName);
     }
 
     static void EnumerateDeviceLayerProperties(VkPhysicalDevice device, Vector<VkLayerProperties> &properties)
@@ -200,9 +200,9 @@ namespace VkUtils
         vkEnumerateDeviceLayerProperties(device, &count, std::data(properties));
 
         /* 遍历 layer 属性列表 */
-        GUNFORCE_CONSOLE_LOGGER_DEBUG("Vulkan device support layer properties: ");
+        LOGGER_WRITE_DEBUG("Vulkan device support layer properties: ");
         for (const auto &property : properties)
-            GUNFORCE_CONSOLE_LOGGER_DEBUG("  - {}", property.layerName);
+            LOGGER_WRITE_DEBUG("  - %s", property.layerName);
     }
 
     static void FindQueueFamilyIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, QueueFamilyIndices *pQueueFamilyIndices)
@@ -291,7 +291,7 @@ namespace VkUtils
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, std::data(surfaceFormats));
 
         uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &formatCount, null);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, null);
         Vector<VkPresentModeKHR> surfacePresentModes(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &formatCount, std::data(surfacePresentModes));
 

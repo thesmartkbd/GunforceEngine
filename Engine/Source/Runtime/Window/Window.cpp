@@ -41,7 +41,7 @@ Window::Window(uint32_t width, uint32_t height, const char* title) : m_Width(wid
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     if ((m_HWIN = glfwCreateWindow(width, height, title, null, null)) == null)
-        GUNFORCE_CONSOLE_LOGGER_ERROR("Create glfw3 window failed!");
+        LOGGER_WRITE_ERROR("Create glfw3 window failed!");
 
     glfwSetWindowUserPointer(m_HWIN, this);
 

@@ -44,6 +44,11 @@
 #include <iostream>
 #include <memory>
 
+/* 启用日志打印 */
+#define ENABLE_LOGGER_WRITE
+/* 日志开启文件路径追踪 */
+// #define ENABLE_LOGGER_TRACE
+
 /* 强制内联 */
 #ifndef __forceinline__
 #  define __forceinline__ __forceinline
@@ -74,20 +79,26 @@ public:
 };
 
 /* 字符串格式化 */
-__forceinline__
-static std::string vstrifmt(std::string_view fmt, std::format_args args)
+static std::string vstrifmt(const char* fmt, va_list va)
 {
-    return std::vformat(fmt, args);
+    char buf[(1024 * 4) + 1];
+    vsnprintf(buf, sizeof(buf), fmt, va);
+    return std::string(buf);
 }
 
-template<typename ...Args>
-__forceinline__
-static std::string strifmt(std::string_view fmt, Args&& ...args)
+static std::string strifmt(const char *fmt, ...)
 {
-    return vstrifmt(fmt, std::make_format_args(args...));
+    std::string ret;
+
+    va_list va;
+    va_start(va, fmt);
+    ret = vstrifmt(fmt, va);
+    va_end(va);
+
+    return ret;
 }
 
-#define strifmtc(fmt, ...) ( strifmt(fmt, __VA_ARGS__).c_str() )
+#define tochr(str) ( str.c_str() )
 
 /* NULl 宏定义 */
 #ifndef null

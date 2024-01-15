@@ -85,15 +85,17 @@ namespace System
     }
 
     /** 以可变参数的形式传参，向控制台格式化打印输出 */
-    static void VaConsoleWrite(std::string_view fmt, std::format_args args)
+    static void VaConsoleWrite(const char *fmt, va_list va)
     {
-        std::cout << vstrifmt(fmt, args) << std::endl;
+        std::cout << vstrifmt(fmt, va) << std::endl;
     }
 
-    template<typename ...Args>
-    static void ConsoleWrite(std::string_view fmt, Args&& ...args)
+    static void ConsoleWrite(const char *fmt, ...)
     {
-        VConsoleWrite(fmt, std::make_format_args(args...));
+        va_list va;
+        va_start(va, fmt);
+        VaConsoleWrite(fmt, va);
+        va_end(va);
     }
 
     /** 设置全局属性 */

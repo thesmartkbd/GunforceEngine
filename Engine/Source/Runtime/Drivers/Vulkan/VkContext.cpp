@@ -37,14 +37,15 @@
 
 VkContext::VkContext(Window *p_window) : m_Window(p_window)
 {
-    GUNFORCE_CONSOLE_LOGGER_INFO("VkContext initialize begin!");
+    LOGGER_WRITE_INFO("VkContext initialize begin!");
     m_Window->AddWindowUserPointer(VULKAN_CONTEXT_POINTER, this);
     _InitializeVulkanContextInstance();
     _InitializeVulkanContextSurface();
     _InitializeVulkanContextDevice();
+    _InitializeVulkanContextRWindow();
     _InitializeVulkanContextCommandPool();
     _InitializeVulkanContextDescriptorPool();
-    GUNFORCE_CONSOLE_LOGGER_INFO("VkContext initialize end!");
+    LOGGER_WRITE_INFO("VkContext initialize end!");
 }
 
 VkContext::~VkContext()
@@ -132,17 +133,17 @@ void VkContext::_InitializeVulkanContextInstance()
 
     Vector<const char*> extensions;
     VkUtils::GetInstanceRequiredEnableExtensionProperties(extensions);
-    GUNFORCE_CONSOLE_LOGGER_INFO("VkContext instance enable extension list:");
+    LOGGER_WRITE_INFO("VkContext instance enable extension list:");
     for (const auto& extension : extensions)
-        GUNFORCE_CONSOLE_LOGGER_INFO("  - {}", extension);
+        LOGGER_WRITE_INFO("  - %s", extension);
     instanceCreateInfo.enabledExtensionCount = std::size(extensions);
     instanceCreateInfo.ppEnabledExtensionNames = std::data(extensions);
 
     Vector<const char*> layers;
     VkUtils::GetInstanceRequiredEnableLayerProperties(layers);
-    GUNFORCE_CONSOLE_LOGGER_INFO("VkContext instance enable layer list:");
+    LOGGER_WRITE_INFO("VkContext instance enable layer list:");
     for (const auto& layer : layers)
-        GUNFORCE_CONSOLE_LOGGER_INFO("  - {}", layer);
+        LOGGER_WRITE_INFO("  - %s", layer);
     instanceCreateInfo.enabledLayerCount = std::size(layers);
     instanceCreateInfo.ppEnabledLayerNames = std::data(layers);
 
@@ -158,7 +159,7 @@ void VkContext::_InitializeVulkanContextDevice()
 {
     VkUtils::GetBestPerformancePhysicalDevice(m_Instance, &m_PhysicalDevice);
     VkUtils::GetPhysicalDeviceProperties(m_PhysicalDevice, &m_PhysicalDeviceProperties, &m_PhysicalDeviceFeatures);
-    GUNFORCE_CONSOLE_LOGGER_INFO("VkContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
+    LOGGER_WRITE_INFO("VkContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
 
     VkUtils::QueueFamilyIndices queueFamilyIndices;
     VkUtils::FindQueueFamilyIndices(m_PhysicalDevice, m_Surface, &queueFamilyIndices);
@@ -203,17 +204,17 @@ void VkContext::_InitializeVulkanContextDevice()
 
 void VkContext::_InitializeVulkanContextRWindow()
 {
-    GUNFORCE_CONSOLE_LOGGER_INFO("VulkanContext initialize RWindow object: ");
+    LOGGER_WRITE_INFO("VulkanContext initialize RWindow object: ");
     m_RWindow = MemoryMalloc(VkContext::RWindow);
     VkUtils::ConfigurationSwpachainCapabilities(m_PhysicalDevice, m_Surface, m_RWindow);
-    GUNFORCE_CONSOLE_LOGGER_INFO("  - capabilites: ");
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - Format:         {}", m_RWindow->format);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - MinImageCount:  {}", m_RWindow->minImageCount);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - ColorSpace:     {}", m_RWindow->colorSpace);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - PresentMode:    {}", m_RWindow->presentMode);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - Transform:      {}", m_RWindow->transform);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - Width:          {}", m_RWindow->width);
-    GUNFORCE_CONSOLE_LOGGER_INFO("    - Height:         {}", m_RWindow->height);
+    LOGGER_WRITE_INFO("  - capabilites: ");
+    LOGGER_WRITE_INFO("    - Format:         %d", m_RWindow->format);
+    LOGGER_WRITE_INFO("    - MinImageCount:  %u", m_RWindow->minImageCount);
+    LOGGER_WRITE_INFO("    - ColorSpace:     %d", m_RWindow->colorSpace);
+    LOGGER_WRITE_INFO("    - PresentMode:    %d", m_RWindow->presentMode);
+    LOGGER_WRITE_INFO("    - Transform:      %d", m_RWindow->transform);
+    LOGGER_WRITE_INFO("    - Width:          %u", m_RWindow->width);
+    LOGGER_WRITE_INFO("    - Height:         %u", m_RWindow->height);
 
     VkSwapchainCreateInfoKHR swapchainCreateInfoKHR = {};
     swapchainCreateInfoKHR.sType = VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR;
