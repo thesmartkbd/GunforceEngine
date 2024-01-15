@@ -33,24 +33,9 @@
 
 #include <Gunforce.h>
 #include <IOUtils.h>
-#define VMA_IMPLEMENTATION
-#include <vma/vk_mem_alloc.h>
 
-/* 检查 vulkan 对象是否创建成功 */
-#define vkCheckCreate(name, ...) \
-    { \
-        VkResult ret = vkCreate##name(__VA_ARGS__); \
-        if (ret != VK_SUCCESS) \
-            LOGGER_WRITE_ERROR("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
-    }
-
-/* 检查 vulkan 对象是否分配成功 */
-#define vkCheckAllocate(name, ...) \
-    { \
-        VkResult ret = vkAllocate##name(__VA_ARGS__); \
-        if (ret != VK_SUCCESS) \
-            LOGGER_WRITE_ERROR("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
-    }
+#define VK_ERROR VkResult
+#define ERROR_FAIL(err) std::data(VkUtils::GetErrorReason(err))
 
 namespace VkUtils
 {
@@ -124,7 +109,7 @@ namespace VkUtils
     };
 
     /* 获取 Result 映射的值 */
-    static std::string_view GetVkResultStatusName(VkResult result)
+    static std::string_view GetErrorReason(VkResult result)
     {
         return _VkResultKeyMap[result];
     }
@@ -381,7 +366,8 @@ namespace VkUtils
         shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t *>(buf);
         shaderModuleCreateInfo.codeSize = size;
-        vkCheckCreate(ShaderModule, device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
+        VK_ERROR err = vkCreateShaderModule(device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
+        LOGGER_WRITE_INFO("Create shader module(VkShaderModule), filename: %s, device: %p, err: %s", filename, device, ERROR_FAIL(err));
         IOUtils::Free(buf);
     }
 

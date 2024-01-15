@@ -32,20 +32,24 @@
 #include "VulkanContext.h"
 #include "Window/Window.h"
 #include "VkUtils.h"
+#define VMA_IMPLEMENTATION
+#include <vma/vk_mem_alloc.h>
 
 #define VULKAN_CONTEXT_POINTER "VK_CONTEXT_POINTER"
+#define DEBUG_ONLY_RUN_ONCE() \
+{\
+    static bool firstDebug = true; \
+    if (firstDebug) { \
+        VkUtils::DebugPrintVulkanProperties(m_Instance); firstDebug = !firstDebug; \
+    } \
+}
 
 VulkanContext::VulkanContext(Window *p_window) : m_Window(p_window)
 {
     LOGGER_WRITE_INFO("VulkanContext initialize begin!");
     m_Window->AddWindowUserPointer(VULKAN_CONTEXT_POINTER, this);
     _InitializeVulkanContextInstance();
-
-    static bool firstDebug = true;
-    if (firstDebug) {
-        VkUtils::DebugPrintVulkanProperties(m_Instance); firstDebug = !firstDebug;
-    }
-
+    DEBUG_ONLY_RUN_ONCE();
     _InitializeVulkanContextSurface();
     _InitializeVulkanContextDevice();
     _InitializeVulkanContextMemoryAllocator();
@@ -60,6 +64,7 @@ VulkanContext::~VulkanContext()
     vkDestroyDescriptorPool(m_Device, m_DescriptorPool, VkUtils::Allocator);
     vkDestroyCommandPool(m_Device, m_CommandPool, VkUtils::Allocator);
     DestroyRWindow(m_RWindow);
+    vmaDestroyAllocator(m_Allocator);
     vkDestroyDevice(m_Device, VkUtils::Allocator);
     vkDestroySurfaceKHR(m_Instance, m_Surface, VkUtils::Allocator);
     vkDestroyInstance(m_Instance, VkUtils::Allocator);
@@ -89,7 +94,7 @@ void VulkanContext::DestroyPipeline(VulkanContext::Pipeline *pPipeline)
 {
     vkDestroyPipeline(m_Device, pPipeline->pipeline, VkUtils::Allocator);
     vkDestroyPipelineLayout(m_Device, pPipeline->pipelineLayout, VkUtils::Allocator);
-    delete pPipeline;
+    MemoryFree(pPipeline);
 }
 
 void VulkanContext::CreateDescriptorSet()
@@ -156,7 +161,8 @@ void VulkanContext::CreateRWindow(const VulkanContext::RWindow* pOldRWindow, Vul
         swapchainCreateInfoKHR.pQueueFamilyIndices = std::data(families);
     }
     
-    vkCheckCreate(SwapchainKHR, m_Device, &swapchainCreateInfoKHR, VkUtils::Allocator, &newRWindow->swapchain);
+    VK_ERROR err = vkCreateSwapchainKHR(m_Device, &swapchainCreateInfoKHR, VkUtils::Allocator, &newRWindow->swapchain);
+    LOGGER_WRITE_INFO("  Create swapchain khr: %s", ERROR_FAIL(err));
 
     /* create render pass  */
     CreateRenderPass(newRWindow->format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, &newRWindow->renderPass);
@@ -179,7 +185,8 @@ void VulkanContext::CreateRWindow(const VulkanContext::RWindow* pOldRWindow, Vul
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheckCreate(ImageView, m_Device, &imageViewCreateInfo, null, &newRWindow->imageViews[i]);
+        VK_ERROR err = vkCreateImageView(m_Device, &imageViewCreateInfo, null, &newRWindow->imageViews[i]);
+        LOGGER_WRITE_INFO("Create image view(VkImageView): %s", ERROR_FAIL(err));
 
         CreateFramebuffer(newRWindow->renderPass, newRWindow->imageViews[i], newRWindow->width, newRWindow->height, &newRWindow->framebuffers[i]);
     }
@@ -195,6 +202,7 @@ void VulkanContext::DestroyRWindow(VulkanContext::RWindow* pRWindow)
         vkDestroyFramebuffer(m_Device, pRWindow->framebuffers[i], VkUtils::Allocator);
     }
     vkDestroySwapchainKHR(m_Device, pRWindow->swapchain, VkUtils::Allocator);
+    MemoryFree(pRWindow);
 }
 
 void VulkanContext::CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkRenderPass* pRenderPass)
@@ -235,7 +243,8 @@ void VulkanContext::CreateRenderPass(VkFormat format, VkImageLayout imageLayout,
     renderPassCreateInfo.dependencyCount = 1;
     renderPassCreateInfo.pDependencies = &subpassDependency;
 
-    vkCheckCreate(RenderPass, m_Device, &renderPassCreateInfo, VkUtils::Allocator, pRenderPass);
+    VK_ERROR err = vkCreateRenderPass(m_Device, &renderPassCreateInfo, VkUtils::Allocator, pRenderPass);
+    LOGGER_WRITE_INFO("Create render pass(VkRenderPass): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::DestroyRenderPass(VkRenderPass renderPass)
@@ -255,7 +264,8 @@ void VulkanContext::CreateFramebuffer(VkRenderPass renderPass, VkImageView image
     framebufferCreateInfo.height = height;
     framebufferCreateInfo.layers = 1;
 
-    vkCheckCreate(Framebuffer, m_Device, &framebufferCreateInfo, VkUtils::Allocator, pFramebuffer);
+    VK_ERROR err = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, VkUtils::Allocator, pFramebuffer);
+    LOGGER_WRITE_INFO("Create frame buffer(VkFramebuffer): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::DestroyFramebuffer(VkFramebuffer framebuffer)
@@ -263,13 +273,39 @@ void VulkanContext::DestroyFramebuffer(VkFramebuffer framebuffer)
     vkDestroyFramebuffer(m_Device, framebuffer, VkUtils::Allocator);
 }
 
-void VulkanContext::CreateBuffer(uint64_t size, VkBufferUsageFlagBits usage, VkBuffer *pBuffer)
+void VulkanContext::CreateBuffer(uint64_t size, VkBufferUsageFlags usage, VulkanContext::Buffer *pBuffer)
 {
+    VulkanContext::Buffer newBuffer = MemoryMalloc(VulkanContext::Buffer_T);
+
     VkBufferCreateInfo bufferCreateInfo = {};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.size = size;
     bufferCreateInfo.usage = usage;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.memoryTypeBits = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+
+    vmaCreateBuffer(m_Allocator, &bufferCreateInfo, &allocInfo, &newBuffer->buffer, &newBuffer->allocation, null);
+
+    *pBuffer = newBuffer;
+}
+
+void VulkanContext::DestroyBuffer(VulkanContext::Buffer buffer)
+{
+    vmaDestroyBuffer(m_Allocator, buffer->buffer, buffer->allocation);
+    MemoryFree(buffer);
+}
+
+void VulkanContext::MapMemory(VulkanContext::Buffer buffer, void **ppData)
+{
+    vmaMapMemory(m_Allocator, buffer->allocation, ppData);
+}
+
+void VulkanContext::UnmapMemory(VulkanContext::Buffer buffer)
+{
+    vmaUnmapMemory(m_Allocator, buffer->allocation);
 }
 
 void VulkanContext::DeviceWaitIdle()
@@ -309,7 +345,8 @@ void VulkanContext::AllocateCommandBuffer(VkCommandBuffer* pCommandBuffer)
     commandBufferAllocateInfo.commandBufferCount = 1;
     commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-    vkCheckAllocate(CommandBuffers, m_Device, &commandBufferAllocateInfo, pCommandBuffer);
+    VK_ERROR err = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo, pCommandBuffer);
+    LOGGER_WRITE_INFO("Allocate command buffers(VkCommandBuffer): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::FreeCommandBuffer(VkCommandBuffer commandBuffer)
@@ -326,8 +363,7 @@ void VulkanContext::_InitializeVulkanContextInstance()
     applicationInfo.pApplicationName = GUNFORCE_ENGINE_NAME;
     applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.pEngineName = GUNFORCE_ENGINE_NAME;
-    applicationInfo.apiVersion = VK_API_VERSION;
-    LOGGER_WRITE_INFO("  Version: %d.%d.%d", VK_VERSION_MAJOR(VK_API_VERSION), VK_VERSION_MINOR(VK_API_VERSION), VK_VERSION_PATCH(VK_API_VERSION));
+    applicationInfo.apiVersion = ApiVersion;
 
     VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -348,15 +384,18 @@ void VulkanContext::_InitializeVulkanContextInstance()
     instanceCreateInfo.enabledLayerCount = std::size(layers);
     instanceCreateInfo.ppEnabledLayerNames = std::data(layers);
 
-    VkResult err = vkCreateInstance(&instanceCreateInfo, VkUtils::Allocator, &m_Instance);
+    VK_ERROR err = vkCreateInstance(&instanceCreateInfo, VkUtils::Allocator, &m_Instance);
     LOGGER_WRITE_INFO("End initialize instance(VkInstance): %d", err);
+
+    vkEnumerateInstanceVersion(&ApiVersion);
+    LOGGER_WRITE_INFO("Vulkan Instance Version: %d.%d.%d", VK_VERSION_MAJOR(ApiVersion), VK_VERSION_MINOR(ApiVersion), VK_VERSION_PATCH(ApiVersion));
 }
 
 void VulkanContext::_InitializeVulkanContextSurface()
 {
     LOGGER_WRITE_INFO("Begin initialize surface(VkSurface)");
-    glfwCreateWindowSurface(m_Instance, m_Window->GetNativeWindow(), VkUtils::Allocator, &m_Surface);
-    LOGGER_WRITE_INFO("End initialize surface(VkSurface)");
+    VkResult err = glfwCreateWindowSurface(m_Instance, m_Window->GetNativeWindow(), VkUtils::Allocator, &m_Surface);
+    LOGGER_WRITE_INFO("End initialize surface(VkSurface): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::_InitializeVulkanContextDevice()
@@ -409,23 +448,30 @@ void VulkanContext::_InitializeVulkanContextDevice()
     deviceCreateInfo.enabledLayerCount = std::size(enableDeviceLayerProperties);
     deviceCreateInfo.ppEnabledLayerNames = std::data(enableDeviceLayerProperties);
 
-    vkCheckCreate(Device, m_PhysicalDevice, &deviceCreateInfo, VkUtils::Allocator, &m_Device);
+    VK_ERROR err = vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, VkUtils::Allocator, &m_Device);
 
     /* 获取队列 */
     vkGetDeviceQueue(m_Device, m_GraphicsQueueFamilyIndex, 0, &m_GraphicsQueue);
     vkGetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
-    LOGGER_WRITE_INFO("End initialize device(VkDevice)");
+    LOGGER_WRITE_INFO("End initialize device(VkDevice): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::_InitializeVulkanContextMemoryAllocator()
 {
     LOGGER_WRITE_INFO("Begin initialize memory allocator(VmaAllocator)");
+    VmaVulkanFunctions vulkanFunctions = {};
+    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+
     VmaAllocatorCreateInfo allocatorCreateInfo = {};
     allocatorCreateInfo.instance = m_Instance;
     allocatorCreateInfo.physicalDevice = m_PhysicalDevice;
     allocatorCreateInfo.device = m_Device;
-    allocatorCreateInfo.vulkanApiVersion = VK_VERSION_1_3;
-    LOGGER_WRITE_INFO("End initialize memory allocator(VmaAllocator)");
+    allocatorCreateInfo.vulkanApiVersion = ApiVersion;
+    allocatorCreateInfo.pAllocationCallbacks = null;
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+    VK_ERROR err = vmaCreateAllocator(&allocatorCreateInfo, &m_Allocator);
+    LOGGER_WRITE_INFO("End initialize memory allocator(VmaAllocator): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::_InitializeVulkanContextRWindow()
@@ -447,9 +493,9 @@ void VulkanContext::_InitializeVulkanContextCommandPool()
     VkCommandPoolCreateInfo commandPoolCreateInfo = {};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
-    vkCheckCreate(CommandPool, m_Device, &commandPoolCreateInfo, VkUtils::Allocator, &m_CommandPool);
+    VK_ERROR err = vkCreateCommandPool(m_Device, &commandPoolCreateInfo, VkUtils::Allocator, &m_CommandPool);
     LOGGER_WRITE_INFO("  Use queue index: %d", commandPoolCreateInfo.queueFamilyIndex);
-    LOGGER_WRITE_INFO("End initialize CommandPool(VkCommandPool)");
+    LOGGER_WRITE_INFO("End initialize CommandPool(VkCommandPool): %s", ERROR_FAIL(err));
 }
 
 void VulkanContext::_InitializeVulkanContextDescriptorPool()
@@ -470,6 +516,6 @@ void VulkanContext::_InitializeVulkanContextDescriptorPool()
         LOGGER_WRITE_INFO("    type: %d, count: %d", item.type, item.descriptorCount);
     LOGGER_WRITE_INFO("  DescriptorPool max sets: %d", descriptorPoolCreateInfo.maxSets);
 
-    vkCheckCreate(DescriptorPool, m_Device, &descriptorPoolCreateInfo, VkUtils::Allocator, &m_DescriptorPool);
-    LOGGER_WRITE_INFO("End initialize DescriptorPool(VkDescriptorPool)");
+    VK_ERROR err = vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, VkUtils::Allocator, &m_DescriptorPool);
+    LOGGER_WRITE_INFO("End initialize DescriptorPool(VkDescriptorPool): %s", ERROR_FAIL(err));
 }

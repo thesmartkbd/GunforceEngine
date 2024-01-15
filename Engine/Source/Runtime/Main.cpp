@@ -45,6 +45,22 @@ int main()
 	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
 	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 
+    VulkanContext::Buffer buffer;
+    vulkanContext->CreateBuffer(255, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, &buffer);
+
+    void *data;
+    vulkanContext->MapMemory(buffer, &data);
+    long x = 114514;
+    memcpy(data, &x, sizeof(long));
+    vulkanContext->UnmapMemory(buffer);
+
+    void *data0;
+    vulkanContext->MapMemory(buffer, &data0);
+    printf("data0: %ld\n", *((long *) data0));
+    vulkanContext->UnmapMemory(buffer);
+
+    vulkanContext->DestroyBuffer(buffer);
+
 	while (!window->IsShouldClose()) {
 		Window::PollEvents();
 	}

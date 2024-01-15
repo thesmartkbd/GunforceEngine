@@ -110,5 +110,5 @@ static std::string strifmt(const char *fmt, ...)
 #endif
 
 /* malloc */
-#define MemoryMalloc(type) (type *) new type
+#define MemoryMalloc(obj) (obj *) new obj
 #define MemoryFree(ptr) delete ptr

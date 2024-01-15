@@ -34,10 +34,9 @@
 #include <vulkan/vulkan.h>
 #include <Gunforce.h>
 
-#define VK_API_VERSION VK_VERSION_1_3
-
 class Window;
 VK_DEFINE_HANDLE(VmaAllocator)
+VK_DEFINE_HANDLE(VmaAllocation)
 
 class GUNFORCEAPI VulkanContext {
 public:
@@ -65,6 +64,12 @@ public:
         VkPipelineLayout pipelineLayout;
     };
 
+    /* buffer(vma) */
+    typedef struct Buffer_T {
+        VkBuffer buffer;
+        VmaAllocation allocation; /* VmaAllocation */
+    } *Buffer;
+
 public:
     VulkanContext(Window *p_window);
     ~VulkanContext();
@@ -80,10 +85,12 @@ public:
     void DestroyRenderPass(VkRenderPass renderPass);
     void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
     void DestroyFramebuffer(VkFramebuffer framebuffer);
-    void CreateBuffer(uint64_t size, VkBufferUsageFlagBits usage, VkBuffer *pBuffer);
-    void DestroyBuffer(VkBuffer buffer);
+    void CreateBuffer(uint64_t size, VkBufferUsageFlags usage, VulkanContext::Buffer *pBuffer);
+    void DestroyBuffer(VulkanContext::Buffer buffer);
 
     /* OPERATE */
+    void MapMemory(VulkanContext::Buffer buffer, void **ppData);
+    void UnmapMemory(VulkanContext::Buffer buffer);
     void DeviceWaitIdle();
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
     void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
@@ -111,6 +118,7 @@ private:
     VkDescriptorPool m_DescriptorPool;
 
     Window* m_Window;
+    uint32_t ApiVersion;
     VkPhysicalDevice m_PhysicalDevice;
     VkPhysicalDeviceProperties m_PhysicalDeviceProperties;
     VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;
