@@ -37,6 +37,7 @@
 
 #include <Typedef.h>
 #include <Logger.h>
+#include <glm/glm.hpp>
 
 #define GUNFORCE_ENGINE_NAME "GunforceEngine"
 
@@ -45,8 +46,8 @@
 #endif
 
 /* 开启引擎调试 */
-#ifndef GUNFORCE_ENABLE_ENGINE_DEBUG
-#  define GUNFORCE_ENABLE_ENGINE_DEBUG
+#ifndef GUNFORCE_ENGINE_ENABLE_DEBUG
+#  define GUNFORCE_ENGINE_ENABLE_DEBUG
 #endif
 
 /* 日志打印 */

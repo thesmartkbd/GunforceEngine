@@ -23,7 +23,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           VulkanUtils.h                                                    *|
+|* File:           VkUtils.h                                                        *|
 |* Create Time:    2024/01/03 01:35                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
@@ -39,7 +39,7 @@
     { \
         VkResult ret = vkCreate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VulkanUtils::GetVkResultStatusName(ret)); \
+            Logger::Error("VulkanContext create vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
     }
 
 /* 检查 vulkan 对象是否分配成功 */
@@ -47,10 +47,10 @@
     { \
         VkResult ret = vkAllocate##name(__VA_ARGS__); \
         if (ret != VK_SUCCESS) \
-            Logger::Error("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VulkanUtils::GetVkResultStatusName(ret)); \
+            Logger::Error("VulkanContext allocate vulkan {} object failed! VkResult status: {}", #name, VkUtils::GetVkResultStatusName(ret)); \
     }
 
-namespace VulkanUtils
+namespace VkUtils
 {
     /* VK 分配器 */
     static VkAllocationCallbacks *Allocator = null;
@@ -251,7 +251,7 @@ namespace VulkanUtils
         Vector<VkLayerProperties> properties;
         EnumerateInstanceLayerProperties(properties);
 
-#ifdef AURORA_ENGINE_ENABLE_DEBUG
+#ifdef GUNFORCE_ENGINE_ENABLE_DEBUG
         required.push_back("VK_LAYER_KHRONOS_validation");
 #endif
     }
@@ -280,6 +280,66 @@ namespace VulkanUtils
         throw std::runtime_error("Vulkan allocate buffer error,  Cause: cannot found suitable memory type!");
     }
 
+    static void ConfigurationSwpachainCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface, VkContext::RWindow* pRWindow)
+    {
+        VkSurfaceCapabilitiesKHR capabilities;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
+
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, null);
+        Vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, std::data(surfaceFormats));
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &formatCount, null);
+        Vector<VkPresentModeKHR> surfacePresentModes(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &formatCount, std::data(surfacePresentModes));
+
+        /* choose surface format */
+        pRWindow->format = VK_FORMAT_UNDEFINED;
+        if (std::size(surfaceFormats) == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED) {
+            pRWindow->format = VK_FORMAT_B8G8R8_UNORM;
+            pRWindow->colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        } else {
+            for (const auto& surfaceFormat : surfaceFormats) {
+                if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                    pRWindow->format = surfaceFormat.format;
+                    pRWindow->colorSpace = surfaceFormat.colorSpace;
+                }
+            }
+
+            if (pRWindow->format == VK_FORMAT_UNDEFINED) {
+                pRWindow->format == surfaceFormats[0].format;
+                pRWindow->colorSpace == surfaceFormats[0].colorSpace;
+            }
+        }
+
+        /* choose present mode */
+        VkPresentModeKHR beastPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+        for (const auto& presentMode : surfacePresentModes) {
+            if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                beastPresentMode = presentMode;
+                goto EndConfigurationSwpachainCapabilities;
+            } else if (presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+                beastPresentMode = presentMode;
+            }
+        }
+    EndConfigurationSwpachainCapabilities:
+        pRWindow->presentMode = beastPresentMode;
+
+        /* set min image count */
+        uint32_t imageCount = capabilities.minImageCount + 1;
+        if (capabilities.minImageCount > 0 && imageCount > capabilities.maxImageCount)
+            imageCount = capabilities.maxImageCount;
+
+        pRWindow->minImageCount = imageCount;
+
+        pRWindow->surface = surface;
+        pRWindow->width = capabilities.currentExtent.width;
+        pRWindow->height = capabilities.currentExtent.height;
+        pRWindow->transform = capabilities.currentTransform;
+    }
+
     static void LoadShaderModule(const char *filename, VkDevice device, VkShaderModule *pShaderModule)
     {
         char* buf;
@@ -290,7 +350,7 @@ namespace VulkanUtils
         shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t *>(buf);
         shaderModuleCreateInfo.codeSize = size;
-        vkCheckCreate(ShaderModule, device, &shaderModuleCreateInfo, VulkanUtils::Allocator, pShaderModule);
+        vkCheckCreate(ShaderModule, device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
         IOUtils::Free(buf);
     }
 

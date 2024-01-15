@@ -27,8 +27,8 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           Typedef.h                                                        *|
-|* Create Time:    2023/12/30 21:07                                                 *|
+|* File:           pch.h                                                            *|
+|* Create Time:    2024/01/15 09:15                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
@@ -44,60 +44,6 @@
 #include <iostream>
 #include <memory>
 
-/* 强制内联 */
-#ifndef __forceinline__
-#  define __forceinline__ __forceinline
+#if defined(WIN32)
+#  include <Windows.h>
 #endif
-
-/* std::vector<T> 标准库封装 */
-template<typename T>
-class Vector : public std::vector<T> {
-public:
-    using std::vector<T>::vector;
-    __forceinline__
-    void remove(size_t index)
-      {
-        this->erase(this->begin() + index);
-      }
-};
-
-/* std::unordered_map<K, V> 标准库封装 */
-template<typename K, typename V>
-class HashMap : public std::unordered_map<K, V> {
-public:
-    using std::unordered_map<K, V>::unordered_map;
-    __forceinline__
-    void remove(const K &k)
-      {
-        this->erase(k);
-      }
-};
-
-/* 字符串格式化 */
-__forceinline__
-static std::string vstrifmt(std::string_view fmt, std::format_args args)
-{
-    return std::vformat(fmt, args);
-}
-
-template<typename ...Args>
-__forceinline__
-static std::string strifmt(std::string_view fmt, Args&& ...args)
-{
-    return vstrifmt(fmt, std::make_format_args(args...));
-}
-
-#define strifmtc(fmt, ...) ( strifmt(fmt, __VA_ARGS__).c_str() )
-
-/* NULl 宏定义 */
-#ifndef null
-#  if defined(VK_VERSION_1_0)
-#    define null VK_NULL_HANDLE
-#  else
-#    define null nullptr
-#  endif
-#endif
-
-/* malloc */
-#define MemoryMalloc(type) (type *) malloc(sizeof(type))
-#define MemoryFree(ptr) free(ptr)

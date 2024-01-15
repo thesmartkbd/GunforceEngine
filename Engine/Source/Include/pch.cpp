@@ -27,44 +27,10 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           GunforceWindow.cpp                                               *|
-|* Create Time:    2024/01/10 16:59                                                 *|
+|* File:           pch.cpp                                                          *|
+|* Create Time:    2024/01/15 09:15                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
-#include "GunforceWindow.h"
-
-GunforceWindow::GunforceWindow(uint32_t width, uint32_t height, const char* title) : m_Width(width), m_Height(height)
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-    if ((m_HWIN = glfwCreateWindow(width, height, title, null, null)) == null)
-        GUNFORCE_CONSOLE_LOGGER_ERROR("Create glfw3 window failed!");
-
-    glfwSetWindowUserPointer(m_HWIN, this);
-
-    glfwSetWindowSizeCallback(m_HWIN, [](GLFWwindow *p_glwin, int w, int h) {
-        auto *window = (GunforceWindow *) glfwGetWindowUserPointer(p_glwin);
-        for (const auto& callback : window->m_WindowResizeEventCallbacks)
-            callback(window, w, h);
-    });
-}
-
-GunforceWindow::~GunforceWindow()
-{
-    glfwDestroyWindow(m_HWIN);
-    glfwTerminate();
-}
-
-size_t GunforceWindow::AddResizeEventCallback(PFN_WindowResizeEventCallback callback)
-{
-    m_WindowResizeEventCallbacks.push_back(callback);
-    return std::size(m_WindowResizeEventCallbacks);
-}
-
-void GunforceWindow::RemoveResizeEventCalback(size_t index)
-{
-    m_WindowResizeEventCallbacks.remove(index);
-}
+#include "pch.h"

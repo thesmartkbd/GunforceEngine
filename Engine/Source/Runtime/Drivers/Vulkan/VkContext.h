@@ -1,8 +1,4 @@
 /* -------------------------------------------------------------------------------- *\
-|*                               Gunforce Engine                                    *|
-\* -------------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
 |*    Copyright (C) 2023 bit-fashion                                                *|
 |*                                                                                  *|
@@ -27,46 +23,76 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           GunforceWindow.h                                                 *|
-|* Create Time:    2024/01/10 16:59                                                 *|
+|* File:           VkContext.h                                                      *|
+|* Create Time:    2024/01/03 01:35                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 #include <Gunforce.h>
 
-class GunforceWindow;
+class Window;
 
-typedef void (*PFN_WindowResizeEventCallback)(GunforceWindow* win, uint32_t w, uint32_t h);
-
-class GunforceWindow {
+class GUNFORCEAPI VkContext {
 public:
-    GunforceWindow(uint32_t width, uint32_t height, const char* title);
-    ~GunforceWindow();
+    /* Vulkan window context */
+    struct RWindow {
+        VkSurfaceKHR surface;
+        VkSwapchainKHR swapchain;
+        VkRenderPass renderPass;
+        Vector<VkImage> images;
+        Vector<VkImageView> imageViews;
+        Vector<VkFramebuffer> framebuffers;
+        Window* window;
+        /* capabilities */
+        uint32_t width;
+        uint32_t height;
+        VkFormat format;
+        VkColorSpaceKHR colorSpace;
+        VkPresentModeKHR presentMode;
+        uint32_t minImageCount;
+        VkSurfaceTransformFlagBitsKHR transform;
+    };
 
 public:
-    GLFWwindow* GetNativeWindow() const { return m_HWIN; };
-    uint32_t GetWidth() const { return m_Width; };
-    uint32_t GetHeight() const { return m_Height; };
-    bool IsShouldClose() const { return glfwWindowShouldClose(m_HWIN); };
-    size_t AddResizeEventCallback(PFN_WindowResizeEventCallback callback);
-    void RemoveResizeEventCalback(size_t index);
+    VkContext(Window *p_window);
+    ~VkContext();
 
-public:
-    /* 事件轮询 */
-    static void PollEvents()
-      {
-        glfwPollEvents()
-            ;
-      }
+    void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
+    void DestroyFramebuffer(VkFramebuffer framebuffer);
+
+    void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
+    void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
+    void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer *pCommandBuffer);
+    void EndCommandBuffer(VkCommandBuffer commandBuffer);
+    void AllocateCommandBuffer(VkCommandBuffer *pCommandBuffer);
+    void FreeCommandBuffer(VkCommandBuffer commandBuffer);
 
 private:
-    GLFWwindow* m_HWIN;
-    uint32_t m_Width;
-    uint32_t m_Height;
+    void _InitializeVulkanContextInstance();
+    void _InitializeVulkanContextSurface();
+    void _InitializeVulkanContextDevice();
+    void _InitializeVulkanContextRWindow();
+    void _InitializeVulkanContextCommandPool();
+    void _InitializeVulkanContextDescriptorPool();
 
-    Vector<PFN_WindowResizeEventCallback> m_WindowResizeEventCallbacks;
+private:
+    VkInstance m_Instance;
+    VkSurfaceKHR m_Surface;
+    VkDevice m_Device;
+    VkContext::RWindow *m_RWindow;
+    VkCommandPool m_CommandPool;
+    VkDescriptorPool m_DescriptorPool;
+
+    Window* m_Window;
+    VkPhysicalDevice m_PhysicalDevice;
+    VkPhysicalDeviceProperties m_PhysicalDeviceProperties;
+    VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;
+    uint32_t m_GraphicsQueueFamilyIndex;
+    VkQueue m_GraphicsQueue;
+    uint32_t m_PresentQueueFamilyIndex;
+    VkQueue m_PresentQueue;
 };

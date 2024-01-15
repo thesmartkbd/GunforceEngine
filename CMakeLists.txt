@@ -47,7 +47,7 @@ INCLUDE_DIRECTORIES(SYSTEM
   "${VULKAN_PATH}/Include"
 )
 
-include_directories(${PROJECT_NAME}
+INCLUDE_DIRECTORIES(${PROJECT_NAME}
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime"
 )
 
@@ -57,9 +57,10 @@ LINK_DIRECTORIES(
 )
 
 ADD_EXECUTABLE(${PROJECT_NAME}
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Include/pch.cpp"
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Main.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Window/GunforceWindow.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp"
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Window/Window.cpp"
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VkContext.cpp"
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}

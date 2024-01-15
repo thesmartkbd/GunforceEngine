@@ -27,77 +27,50 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           Typedef.h                                                        *|
-|* Create Time:    2023/12/30 21:07                                                 *|
+|* File:           Window.h                                                 *|
+|* Create Time:    2024/01/10 16:59                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#include <array>
-#include <vector>
-#include <unordered_map>
-#include <string>
-#include <format>
-#include <stdarg.h>
-#include <iostream>
-#include <memory>
+#include <GLFW/glfw3.h>
+#include <Gunforce.h>
 
-/* 强制内联 */
-#ifndef __forceinline__
-#  define __forceinline__ __forceinline
-#endif
+class Window;
 
-/* std::vector<T> 标准库封装 */
-template<typename T>
-class Vector : public std::vector<T> {
+typedef void (*PFN_WindowResizeEventCallback)(Window* win, uint32_t w, uint32_t h);
+
+class Window {
 public:
-    using std::vector<T>::vector;
-    __forceinline__
-    void remove(size_t index)
-      {
-        this->erase(this->begin() + index);
-      }
-};
+    Window(uint32_t width, uint32_t height, const char* title);
+    ~Window();
 
-/* std::unordered_map<K, V> 标准库封装 */
-template<typename K, typename V>
-class HashMap : public std::unordered_map<K, V> {
 public:
-    using std::unordered_map<K, V>::unordered_map;
-    __forceinline__
-    void remove(const K &k)
+    void AddWindowUserPointer(std::string name, void *pointer);
+    void* GetWindowUserPointer(const std::string &name);
+    void RemoveWindowUserPointer(const std::string &name);
+    GLFWwindow* GetNativeWindow() const { return m_HWIN; };
+    uint32_t GetWidth() const { return m_Width; };
+    uint32_t GetHeight() const { return m_Height; };
+    bool IsShouldClose() const { return glfwWindowShouldClose(m_HWIN); };
+    size_t AddWindowResizeEventCallback(PFN_WindowResizeEventCallback callback);
+    void RemoveWindowResizeEventCalback(size_t index);
+
+public:
+    /* 事件轮询 */
+    static void PollEvents()
       {
-        this->erase(k);
+        glfwPollEvents()
+            ;
       }
+
+private:
+    GLFWwindow* m_HWIN;
+    uint32_t m_Width;
+    uint32_t m_Height;
+
+    HashMap<std::string, void*> m_WindowUserPointers;
+    Vector<PFN_WindowResizeEventCallback> m_WindowResizeEventCallbacks;
 };
-
-/* 字符串格式化 */
-__forceinline__
-static std::string vstrifmt(std::string_view fmt, std::format_args args)
-{
-    return std::vformat(fmt, args);
-}
-
-template<typename ...Args>
-__forceinline__
-static std::string strifmt(std::string_view fmt, Args&& ...args)
-{
-    return vstrifmt(fmt, std::make_format_args(args...));
-}
-
-#define strifmtc(fmt, ...) ( strifmt(fmt, __VA_ARGS__).c_str() )
-
-/* NULl 宏定义 */
-#ifndef null
-#  if defined(VK_VERSION_1_0)
-#    define null VK_NULL_HANDLE
-#  else
-#    define null nullptr
-#  endif
-#endif
-
-/* malloc */
-#define MemoryMalloc(type) (type *) malloc(sizeof(type))
-#define MemoryFree(ptr) free(ptr)

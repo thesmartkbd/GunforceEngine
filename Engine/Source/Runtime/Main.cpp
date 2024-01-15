@@ -33,19 +33,19 @@
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
-#include "Window/GunforceWindow.h"
-#include "Drivers/Vulkan/VulkanContext.h"
+#include "Window/Window.h"
+#include "Drivers/Vulkan/VkContext.h"
 
 int main()
 {
 	/* 设置控制台中文字符 */
 	system("chcp 65001");
 
-	std::unique_ptr<GunforceWindow> window = std::make_unique<GunforceWindow>(800, 600, "枪神引擎");
-	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
+	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
+	std::unique_ptr<VkContext> vulkanContext = std::make_unique<VkContext>(window.get());
 
 	while (!window->IsShouldClose()) {
-		GunforceWindow::PollEvents();
+		Window::PollEvents();
 	}
 
 	return 0;
