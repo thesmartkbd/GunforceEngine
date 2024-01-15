@@ -20,7 +20,7 @@
 
 /*
  ===============================
-   @author bit-fashion
+   @author thesmartkbd
  ===============================
 */
 #include "Python3.h"

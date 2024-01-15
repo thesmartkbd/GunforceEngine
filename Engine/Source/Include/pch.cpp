@@ -4,7 +4,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|*    Copyright (C) 2023 bit-fashion                                                *|
+|*    Copyright (C) 2023 thesmartkbd                                                *|
 |*                                                                                  *|
 |*    This program is free software: you can redistribute it and/or modify          *|
 |*    it under the terms of the GNU General Public License as published by          *|
@@ -29,8 +29,8 @@
 |*                                                                                  *|
 |* File:           pch.cpp                                                          *|
 |* Create Time:    2024/01/15 09:15                                                 *|
-|* Author:         bit-fashion                                                      *|
-|* EMail:          bit-fashion@hotmail.com                                          *|
+|* Author:         thesmartkbd                                                      *|
+|* EMail:          thesmartkbd@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
 #include "pch.h"

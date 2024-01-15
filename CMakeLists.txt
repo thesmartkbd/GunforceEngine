@@ -4,7 +4,7 @@
 
 # /* -------------------------------------------------------------------------------- *\
 # |*                                                                                  *|
-# |*    Copyright (C) 2023 bit-fashion                                                *|
+# |*    Copyright (C) 2023 thesmartkbd                                                *|
 # |*                                                                                  *|
 # |*    This program is free software: you can redistribute it and/or modify          *|
 # |*    it under the terms of the GNU General Public License as published by          *|
@@ -29,8 +29,8 @@
 # |*                                                                                  *|
 # |* File:           CMakeLists.txt                                                   *|
 # |* Create Time:    2023/12/27 16:47                                                 *|
-# |* Author:         bit-fashion                                                      *|
-# |* EMail:          bit-fashion@hotmail.com                                          *|
+# |* Author:         thesmartkbd                                                      *|
+# |* EMail:          thesmartkbd@hotmail.com                                          *|
 # |*                                                                                  *|
 # \* -------------------------------------------------------------------------------- */
 CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
