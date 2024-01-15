@@ -42,8 +42,6 @@ int main()
 	/* 设置控制台中文字符 */
 	system("chcp 65001");
 
-    printf("%s\n", "../Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp(47)");
-
 	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
 	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 

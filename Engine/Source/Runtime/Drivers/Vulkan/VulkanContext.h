@@ -34,7 +34,10 @@
 #include <vulkan/vulkan.h>
 #include <Gunforce.h>
 
+#define VK_API_VERSION VK_VERSION_1_3
+
 class Window;
+VK_DEFINE_HANDLE(VmaAllocator)
 
 class GUNFORCEAPI VulkanContext {
 public:
@@ -57,11 +60,19 @@ public:
         VkSurfaceTransformFlagBitsKHR transform;
     };
 
+    struct Pipeline {
+        VkPipeline pipeline;
+        VkPipelineLayout pipelineLayout;
+    };
+
 public:
     VulkanContext(Window *p_window);
     ~VulkanContext();
 
     /* RESOURCE */
+    void CreatePipeline(const char *folder, const char *name, VulkanContext::Pipeline **ppPipeline);
+    void DestroyPipeline(VulkanContext::Pipeline *pPipeline);
+    void CreateDescriptorSet();
     void RecreateRWindow(VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow);
     void CreateRWindow(const VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow);
     void DestroyRWindow(VulkanContext::RWindow* pRWindow);
@@ -69,8 +80,11 @@ public:
     void DestroyRenderPass(VkRenderPass renderPass);
     void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
     void DestroyFramebuffer(VkFramebuffer framebuffer);
+    void CreateBuffer(uint64_t size, VkBufferUsageFlagBits usage, VkBuffer *pBuffer);
+    void DestroyBuffer(VkBuffer buffer);
 
     /* OPERATE */
+    void DeviceWaitIdle();
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
     void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
     void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer *pCommandBuffer);
@@ -82,6 +96,7 @@ private:
     void _InitializeVulkanContextInstance();
     void _InitializeVulkanContextSurface();
     void _InitializeVulkanContextDevice();
+    void _InitializeVulkanContextMemoryAllocator();
     void _InitializeVulkanContextRWindow();
     void _InitializeVulkanContextCommandPool();
     void _InitializeVulkanContextDescriptorPool();
@@ -90,6 +105,7 @@ private:
     VkInstance m_Instance;
     VkSurfaceKHR m_Surface;
     VkDevice m_Device;
+    VmaAllocator m_Allocator;
     VulkanContext::RWindow* m_RWindow;
     VkCommandPool m_CommandPool;
     VkDescriptorPool m_DescriptorPool;
