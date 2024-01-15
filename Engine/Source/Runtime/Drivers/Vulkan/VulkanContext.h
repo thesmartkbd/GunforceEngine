@@ -23,7 +23,7 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           VkContext.h                                                      *|
+|* File:           VulkanContext.h                                                  *|
 |* Create Time:    2024/01/03 01:35                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
@@ -36,7 +36,7 @@
 
 class Window;
 
-class GUNFORCEAPI VkContext {
+class GUNFORCEAPI VulkanContext {
 public:
     /* Vulkan render main window context */
     struct RWindow {
@@ -58,17 +58,19 @@ public:
     };
 
 public:
-    VkContext(Window *p_window);
-    ~VkContext();
+    VulkanContext(Window *p_window);
+    ~VulkanContext();
 
-    void RecreateRWindow(VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow);
-    void CreateRWindow(const VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow);
-    void DestroyRWindow(VkContext::RWindow* pRWindow);
+    /* RESOURCE */
+    void RecreateRWindow(VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow);
+    void CreateRWindow(const VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow);
+    void DestroyRWindow(VulkanContext::RWindow* pRWindow);
     void CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkRenderPass* pRenderPass);
     void DestroyRenderPass(VkRenderPass renderPass);
     void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
     void DestroyFramebuffer(VkFramebuffer framebuffer);
 
+    /* OPERATE */
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
     void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
     void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer *pCommandBuffer);
@@ -88,7 +90,7 @@ private:
     VkInstance m_Instance;
     VkSurfaceKHR m_Surface;
     VkDevice m_Device;
-    VkContext::RWindow* m_RWindow;
+    VulkanContext::RWindow* m_RWindow;
     VkCommandPool m_CommandPool;
     VkDescriptorPool m_DescriptorPool;
 

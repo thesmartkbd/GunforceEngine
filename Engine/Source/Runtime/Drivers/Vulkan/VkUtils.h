@@ -281,7 +281,7 @@ namespace VkUtils
         throw std::runtime_error("Vulkan allocate buffer error,  Cause: cannot found suitable memory type!");
     }
 
-    static void ConfigurationSwpachainCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface, VkContext::RWindow* pRWindow)
+    static void ConfigurationSwpachainCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface, VulkanContext::RWindow* pRWindow)
     {
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);

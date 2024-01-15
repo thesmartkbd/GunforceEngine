@@ -60,7 +60,7 @@ ADD_EXECUTABLE(${PROJECT_NAME}
   "${PROJECT_SOURCE_DIR}/Engine/Source/Include/pch.cpp"
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Main.cpp"
   "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Window/Window.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VkContext.cpp"
+  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp"
 )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}

@@ -23,21 +23,21 @@
 
 /* -------------------------------------------------------------------------------- *\
 |*                                                                                  *|
-|* File:           VkContext.cpp                                                    *|
+|* File:           VulkanContext.cpp                                                *|
 |* Create Time:    2024/01/03 01:35                                                 *|
 |* Author:         bit-fashion                                                      *|
 |* EMail:          bit-fashion@hotmail.com                                          *|
 |*                                                                                  *|
 \* -------------------------------------------------------------------------------- */
-#include "VkContext.h"
+#include "VulkanContext.h"
 #include "Window/Window.h"
 #include "VkUtils.h"
 
 #define VULKAN_CONTEXT_POINTER "VK_CONTEXT_POINTER"
 
-VkContext::VkContext(Window *p_window) : m_Window(p_window)
+VulkanContext::VulkanContext(Window *p_window) : m_Window(p_window)
 {
-    LOGGER_WRITE_INFO("VkContext initialize begin!");
+    LOGGER_WRITE_INFO("VulkanContext initialize begin!");
     m_Window->AddWindowUserPointer(VULKAN_CONTEXT_POINTER, this);
     _InitializeVulkanContextInstance();
     _InitializeVulkanContextSurface();
@@ -45,10 +45,10 @@ VkContext::VkContext(Window *p_window) : m_Window(p_window)
     _InitializeVulkanContextRWindow();
     _InitializeVulkanContextCommandPool();
     _InitializeVulkanContextDescriptorPool();
-    LOGGER_WRITE_INFO("VkContext initialize end!");
+    LOGGER_WRITE_INFO("VulkanContext initialize end!");
 }
 
-VkContext::~VkContext()
+VulkanContext::~VulkanContext()
 {
     vkDestroyDescriptorPool(m_Device, m_DescriptorPool, VkUtils::Allocator);
     vkDestroyCommandPool(m_Device, m_CommandPool, VkUtils::Allocator);
@@ -59,7 +59,7 @@ VkContext::~VkContext()
     m_Window->RemoveWindowUserPointer(VULKAN_CONTEXT_POINTER);
 }
 
-void VkContext::RecreateRWindow(VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow)
+void VulkanContext::RecreateRWindow(VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow)
 {
     if (pOldRWindow != null) {
         CreateRWindow(pOldRWindow, ppRWindow);
@@ -70,10 +70,10 @@ void VkContext::RecreateRWindow(VkContext::RWindow* pOldRWindow, VkContext::RWin
     }
 }
 
-void VkContext::CreateRWindow(const VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow)
+void VulkanContext::CreateRWindow(const VulkanContext::RWindow* pOldRWindow, VulkanContext::RWindow** ppRWindow)
 {
-    LOGGER_WRITE_INFO("VkContext create RWindow object");
-    VkContext::RWindow *newRWindow = MemoryMalloc(VkContext::RWindow);
+    LOGGER_WRITE_INFO("VulkanContext create RWindow object");
+    VulkanContext::RWindow *newRWindow = MemoryMalloc(VulkanContext::RWindow);
     VkUtils::ConfigurationSwpachainCapabilities(m_PhysicalDevice, m_Surface, newRWindow);
     LOGGER_WRITE_INFO("  - Capabilites: ");
     LOGGER_WRITE_INFO("    - Format:         %d", newRWindow->format);
@@ -148,7 +148,7 @@ void VkContext::CreateRWindow(const VkContext::RWindow* pOldRWindow, VkContext::
     *ppRWindow = newRWindow;
 }
 
-void VkContext::DestroyRWindow(VkContext::RWindow* pRWindow)
+void VulkanContext::DestroyRWindow(VulkanContext::RWindow* pRWindow)
 {
     vkDestroyRenderPass(m_Device, pRWindow->renderPass, VkUtils::Allocator);
     for (int i = 0; i < pRWindow->minImageCount; i++) {
@@ -158,7 +158,7 @@ void VkContext::DestroyRWindow(VkContext::RWindow* pRWindow)
     vkDestroySwapchainKHR(m_Device, pRWindow->swapchain, VkUtils::Allocator);
 }
 
-void VkContext::CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkRenderPass* pRenderPass)
+void VulkanContext::CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkRenderPass* pRenderPass)
 {
     VkAttachmentDescription colorAttachmentDescription = {};
     colorAttachmentDescription.format = format;
@@ -199,12 +199,12 @@ void VkContext::CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkR
     vkCheckCreate(RenderPass, m_Device, &renderPassCreateInfo, VkUtils::Allocator, pRenderPass);
 }
 
-void VkContext::DestroyRenderPass(VkRenderPass renderPass)
+void VulkanContext::DestroyRenderPass(VkRenderPass renderPass)
 {
     vkDestroyRenderPass(m_Device, renderPass, VkUtils::Allocator);
 }
 
-void VkContext::CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer)
+void VulkanContext::CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer)
 {
     VkImageView attachments[] = { imageView };
     VkFramebufferCreateInfo framebufferCreateInfo = {};
@@ -219,22 +219,22 @@ void VkContext::CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView
     vkCheckCreate(Framebuffer, m_Device, &framebufferCreateInfo, VkUtils::Allocator, pFramebuffer);
 }
 
-void VkContext::DestroyFramebuffer(VkFramebuffer framebuffer)
+void VulkanContext::DestroyFramebuffer(VkFramebuffer framebuffer)
 {
     vkDestroyFramebuffer(m_Device, framebuffer, VkUtils::Allocator);
 }
 
-void VkContext::BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer)
+void VulkanContext::BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer)
 {
     BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, pCommandBuffer);
 }
 
-void VkContext::EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanContext::EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer)
 {
     EndCommandBuffer(commandBuffer);
 }
 
-void VkContext::BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer* pCommandBuffer)
+void VulkanContext::BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer* pCommandBuffer)
 {
     AllocateCommandBuffer(pCommandBuffer);
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};
@@ -243,12 +243,12 @@ void VkContext::BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuf
     vkBeginCommandBuffer(*pCommandBuffer, &commandBufferBeginInfo);
 }
 
-void VkContext::EndCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanContext::EndCommandBuffer(VkCommandBuffer commandBuffer)
 {
     vkEndCommandBuffer(commandBuffer);
 }
 
-void VkContext::AllocateCommandBuffer(VkCommandBuffer* pCommandBuffer)
+void VulkanContext::AllocateCommandBuffer(VkCommandBuffer* pCommandBuffer)
 {
     VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -259,12 +259,12 @@ void VkContext::AllocateCommandBuffer(VkCommandBuffer* pCommandBuffer)
     vkCheckAllocate(CommandBuffers, m_Device, &commandBufferAllocateInfo, pCommandBuffer);
 }
 
-void VkContext::FreeCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanContext::FreeCommandBuffer(VkCommandBuffer commandBuffer)
 {
     vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
 }
 
-void VkContext::_InitializeVulkanContextInstance()
+void VulkanContext::_InitializeVulkanContextInstance()
 {
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -279,7 +279,7 @@ void VkContext::_InitializeVulkanContextInstance()
 
     Vector<const char*> extensions;
     VkUtils::GetInstanceRequiredEnableExtensionProperties(extensions);
-    LOGGER_WRITE_INFO("VkContext instance enable extension list:");
+    LOGGER_WRITE_INFO("VulkanContext instance enable extension list:");
     for (const auto& extension : extensions)
         LOGGER_WRITE_INFO("  - %s", extension);
     instanceCreateInfo.enabledExtensionCount = std::size(extensions);
@@ -287,7 +287,7 @@ void VkContext::_InitializeVulkanContextInstance()
 
     Vector<const char*> layers;
     VkUtils::GetInstanceRequiredEnableLayerProperties(layers);
-    LOGGER_WRITE_INFO("VkContext instance enable layer list:");
+    LOGGER_WRITE_INFO("VulkanContext instance enable layer list:");
     for (const auto& layer : layers)
         LOGGER_WRITE_INFO("  - %s", layer);
     instanceCreateInfo.enabledLayerCount = std::size(layers);
@@ -296,16 +296,16 @@ void VkContext::_InitializeVulkanContextInstance()
     vkCheckCreate(Instance, &instanceCreateInfo, VkUtils::Allocator, &m_Instance);
 }
 
-void VkContext::_InitializeVulkanContextSurface()
+void VulkanContext::_InitializeVulkanContextSurface()
 {
     glfwCreateWindowSurface(m_Instance, m_Window->GetNativeWindow(), VkUtils::Allocator, &m_Surface);
 }
 
-void VkContext::_InitializeVulkanContextDevice()
+void VulkanContext::_InitializeVulkanContextDevice()
 {
     VkUtils::GetBestPerformancePhysicalDevice(m_Instance, &m_PhysicalDevice);
     VkUtils::GetPhysicalDeviceProperties(m_PhysicalDevice, &m_PhysicalDeviceProperties, &m_PhysicalDeviceFeatures);
-    LOGGER_WRITE_INFO("VkContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
+    LOGGER_WRITE_INFO("VulkanContext physical device gpu using: {}", m_PhysicalDeviceProperties.deviceName);
 
     VkUtils::QueueFamilyIndices queueFamilyIndices;
     VkUtils::FindQueueFamilyIndices(m_PhysicalDevice, m_Surface, &queueFamilyIndices);
@@ -348,19 +348,19 @@ void VkContext::_InitializeVulkanContextDevice()
     vkGetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
 }
 
-void VkContext::_InitializeVulkanContextRWindow()
+void VulkanContext::_InitializeVulkanContextRWindow()
 {
     LOGGER_WRITE_INFO("VulkanContext initialize RWindow object: ");
     CreateRWindow(null, &m_RWindow);
     m_Window->AddWindowResizeEventCallback([](Window *window, uint32_t width, uint32_t height) {
-        LOGGER_WRITE_INFO("Window resize event callback - recreate VkContext::RWindow current size, %u, %u", width, height);
-        VkContext *vkContext = (VkContext *) window->GetWindowUserPointer(VULKAN_CONTEXT_POINTER);
-        VkContext::RWindow *oldRWindow = vkContext->m_RWindow;
-        vkContext->RecreateRWindow(oldRWindow, &vkContext->m_RWindow);
+        LOGGER_WRITE_INFO("Window resize event callback - recreate VulkanContext::RWindow current size, %u, %u", width, height);
+        VulkanContext *vulkanContext = (VulkanContext *) window->GetWindowUserPointer(VULKAN_CONTEXT_POINTER);
+        VulkanContext::RWindow *oldRWindow = vulkanContext->m_RWindow;
+        vulkanContext->RecreateRWindow(oldRWindow, &vulkanContext->m_RWindow);
     });
 }
 
-void VkContext::_InitializeVulkanContextCommandPool()
+void VulkanContext::_InitializeVulkanContextCommandPool()
 {
     VkCommandPoolCreateInfo commandPoolCreateInfo = {};
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -368,7 +368,7 @@ void VkContext::_InitializeVulkanContextCommandPool()
     vkCheckCreate(CommandPool, m_Device, &commandPoolCreateInfo, VkUtils::Allocator, &m_CommandPool);
 }
 
-void VkContext::_InitializeVulkanContextDescriptorPool()
+void VulkanContext::_InitializeVulkanContextDescriptorPool()
 {
     Vector<VkDescriptorPoolSize> poolSize = {
         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 64 },
