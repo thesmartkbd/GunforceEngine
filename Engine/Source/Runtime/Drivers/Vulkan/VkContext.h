@@ -38,7 +38,7 @@ class Window;
 
 class GUNFORCEAPI VkContext {
 public:
-    /* Vulkan window context */
+    /* Vulkan render main window context */
     struct RWindow {
         VkSurfaceKHR surface;
         VkSwapchainKHR swapchain;
@@ -61,6 +61,11 @@ public:
     VkContext(Window *p_window);
     ~VkContext();
 
+    void RecreateRWindow(VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow);
+    void CreateRWindow(const VkContext::RWindow* pOldRWindow, VkContext::RWindow** ppRWindow);
+    void DestroyRWindow(VkContext::RWindow* pRWindow);
+    void CreateRenderPass(VkFormat format, VkImageLayout imageLayout, VkRenderPass* pRenderPass);
+    void DestroyRenderPass(VkRenderPass renderPass);
     void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
     void DestroyFramebuffer(VkFramebuffer framebuffer);
 
@@ -83,7 +88,7 @@ private:
     VkInstance m_Instance;
     VkSurfaceKHR m_Surface;
     VkDevice m_Device;
-    VkContext::RWindow *m_RWindow;
+    VkContext::RWindow* m_RWindow;
     VkCommandPool m_CommandPool;
     VkDescriptorPool m_DescriptorPool;
 

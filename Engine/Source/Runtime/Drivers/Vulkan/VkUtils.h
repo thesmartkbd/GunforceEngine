@@ -260,6 +260,7 @@ namespace VkUtils
     {
         Vector<VkExtensionProperties> properties;
         EnumerateDeviceExtensionProperties(device, properties);
+        required.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     }
 
     static void GetDeviceRequiredEnableLayerProperties(VkPhysicalDevice device, Vector<const char *> &required)
@@ -298,7 +299,7 @@ namespace VkUtils
         /* choose surface format */
         pRWindow->format = VK_FORMAT_UNDEFINED;
         if (std::size(surfaceFormats) == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED) {
-            pRWindow->format = VK_FORMAT_B8G8R8_UNORM;
+            pRWindow->format = VK_FORMAT_B8G8R8A8_UNORM;
             pRWindow->colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         } else {
             for (const auto& surfaceFormat : surfaceFormats) {
