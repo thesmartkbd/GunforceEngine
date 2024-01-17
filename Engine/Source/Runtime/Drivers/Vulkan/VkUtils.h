@@ -296,7 +296,7 @@ namespace VkUtils
         throw std::runtime_error("Vulkan allocate buffer error,  Cause: cannot found suitable memory type!");
     }
 
-    static void ConfigurationSwpachainCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface, VulkanContext::RWindow* pRWindow)
+    static void ConfigurationSwpachainCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface, VtxWindow window)
     {
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
@@ -312,21 +312,21 @@ namespace VkUtils
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &formatCount, std::data(surfacePresentModes));
 
         /* choose surface format */
-        pRWindow->format = VK_FORMAT_UNDEFINED;
+        window->format = VK_FORMAT_UNDEFINED;
         if (std::size(surfaceFormats) == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED) {
-            pRWindow->format = VK_FORMAT_B8G8R8A8_UNORM;
-            pRWindow->colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+            window->format = VK_FORMAT_B8G8R8A8_UNORM;
+            window->colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         } else {
             for (const auto& surfaceFormat : surfaceFormats) {
                 if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-                    pRWindow->format = surfaceFormat.format;
-                    pRWindow->colorSpace = surfaceFormat.colorSpace;
+                    window->format = surfaceFormat.format;
+                    window->colorSpace = surfaceFormat.colorSpace;
                 }
             }
 
-            if (pRWindow->format == VK_FORMAT_UNDEFINED) {
-                pRWindow->format == surfaceFormats[0].format;
-                pRWindow->colorSpace == surfaceFormats[0].colorSpace;
+            if (window->format == VK_FORMAT_UNDEFINED) {
+                window->format == surfaceFormats[0].format;
+                window->colorSpace == surfaceFormats[0].colorSpace;
             }
         }
 
@@ -341,19 +341,19 @@ namespace VkUtils
             }
         }
     EndConfigurationSwpachainCapabilities:
-        pRWindow->presentMode = beastPresentMode;
+        window->presentMode = beastPresentMode;
 
         /* set min image count */
         uint32_t imageCount = capabilities.minImageCount + 1;
         if (capabilities.minImageCount > 0 && imageCount > capabilities.maxImageCount)
             imageCount = capabilities.maxImageCount;
 
-        pRWindow->minImageCount = imageCount;
+        window->minImageCount = imageCount;
 
-        pRWindow->surface = surface;
-        pRWindow->width = capabilities.currentExtent.width;
-        pRWindow->height = capabilities.currentExtent.height;
-        pRWindow->transform = capabilities.currentTransform;
+        window->surface = surface;
+        window->width = capabilities.currentExtent.width;
+        window->height = capabilities.currentExtent.height;
+        window->transform = capabilities.currentTransform;
     }
 
     static void LoadShaderModule(const char *filename, VkDevice device, VkShaderModule *pShaderModule)
@@ -361,13 +361,14 @@ namespace VkUtils
         char* buf;
         size_t size;
 
+        LOGGER_WRITE_DEBUG("VkUtils::LoaderShaderModule: filename=%s, device=0x%p", filename, device);
         buf = IOUtils::ReadFile(filename, &size);
         VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
         shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t *>(buf);
         shaderModuleCreateInfo.codeSize = size;
         VK_ERROR err = vkCreateShaderModule(device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
-        LOGGER_WRITE_INFO("Create shader module(VkShaderModule), filename: %s, device: %p, err: %s", filename, device, ERROR_FAIL(err));
+        LOGGER_WRITE_INFO("Create shader module(VkShaderModule), filename: %s, device: 0x%p, err: %s", filename, device, ERROR_FAIL(err));
         IOUtils::Free(buf);
     }
 

@@ -45,23 +45,26 @@ int main()
 	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
 	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 
-    VulkanContext::Buffer buffer;
-    vulkanContext->CreateBuffer(255, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, &buffer);
+    VtxPipeline pipeline;
+    VtxWindow windowV;
 
-    void *data;
-    vulkanContext->MapMemory(buffer, &data);
-    long x = 114514;
-    memcpy(data, &x, sizeof(long));
-    vulkanContext->UnmapMemory(buffer);
-
-    void *data0;
-    vulkanContext->MapMemory(buffer, &data0);
-    printf("data0: %ld\n", *((long *) data0));
-    vulkanContext->UnmapMemory(buffer);
-
-    vulkanContext->DestroyBuffer(buffer);
+    windowV = vulkanContext->GetCurrentContextVtxWindow();
+    vulkanContext->CreatePipeline("../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
 
 	while (!window->IsShouldClose()) {
+        VkCommandBuffer commandBuffer;
+        vulkanContext->BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &commandBuffer);
+        {
+            uint32_t index;
+            vulkanContext->AcquireNextImage(windowV, &index);
+            vulkanContext->BeginRenderPass(commandBuffer, windowV->width, windowV->height, windowV->framebuffers[index], windowV->renderPass);
+            {
+                LOGGER_WRITE_INFO("acquire next image index: %u", index);
+            }
+            vulkanContext->EndRenderPass(commandBuffer);
+        }
+        vulkanContext->EndCommandBuffer(commandBuffer);
+
 		Window::PollEvents();
 	}
 
