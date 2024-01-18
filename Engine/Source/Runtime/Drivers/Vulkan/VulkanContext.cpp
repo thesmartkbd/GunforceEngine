@@ -384,7 +384,7 @@ void VulkanContext::CreateRenderWindow(const VtxWindow oldRWindow, VtxWindow* pR
         imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = -1;
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
@@ -496,7 +496,7 @@ void VulkanContext::CreateIndexBuffer(uint64_t size, uint32_t *pIndices, VtxBuff
 
     VtxBuffer vertexBuffer;
     CreateBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VTX_MEMORY_ALLOCATE_TYPE_GPU, &vertexBuffer);
-    VCmdCopyBuffer(stagingBuffer, 0, vertexBuffer, 0, size);
+    CopyBuffer(stagingBuffer, 0, vertexBuffer, 0, size);
 
     DestroyBuffer(stagingBuffer);
     *pBuffer = vertexBuffer;
@@ -514,7 +514,7 @@ void VulkanContext::CreateVertexBuffer(uint64_t size, Vertex* pVertices, VtxBuff
 
     VtxBuffer vertexBuffer;
     CreateBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VTX_MEMORY_ALLOCATE_TYPE_GPU, &vertexBuffer);
-    VCmdCopyBuffer(stagingBuffer, 0, vertexBuffer, 0, size);
+    CopyBuffer(stagingBuffer, 0, vertexBuffer, 0, size);
 
     DestroyBuffer(stagingBuffer);
     *pBuffer = vertexBuffer;
@@ -554,21 +554,6 @@ void VulkanContext::DestroyBuffer(VtxBuffer buffer)
     LOGGER_WRITE_DEBUG("VulkanContext destroy buffer(VtxBuffer): buffer=0x%p, allocation=0x%p, size=%llu", buffer->buffer, buffer->allocation, buffer->size);
     vmaDestroyBuffer(m_Allocator, buffer->buffer, buffer->allocation);
     MemoryFree(buffer);
-}
-
-void VulkanContext::VCmdCopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size)
-{
-    VkCommandBuffer copyCommandBuffer;
-    BeginOneTimeCommandBuffer(&copyCommandBuffer);
-
-    VkBufferCopy copyInfo = {};
-    copyInfo.srcOffset = srcOffset;
-    copyInfo.dstOffset = dstOffset;
-    copyInfo.size = size;
-    vkCmdCopyBuffer(copyCommandBuffer, src->buffer, dst->buffer, 1, &copyInfo);
-    LOGGER_WRITE_DEBUG("VulkanContext copy buffer: src: 0x%p, offset: %llu, dst: 0x%p, offset: %llu, size: %llu", src->buffer, srcOffset, dst->buffer, dstOffset, size);
-
-    EndOneTimeCommandBuffer(copyCommandBuffer);
 }
 
 void VulkanContext::VCmdBindPipeline(VkCommandBuffer commandBuffer, VtxPipeline pipeline)
@@ -693,6 +678,21 @@ void VulkanContext::MapMemory(VtxBuffer buffer, void **ppData)
 void VulkanContext::UnmapMemory(VtxBuffer buffer)
 {
     vmaUnmapMemory(m_Allocator, buffer->allocation);
+}
+
+void VulkanContext::CopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size)
+{
+    VkCommandBuffer copyCommandBuffer;
+    BeginOneTimeCommandBuffer(&copyCommandBuffer);
+
+    VkBufferCopy copyInfo = {};
+    copyInfo.srcOffset = srcOffset;
+    copyInfo.dstOffset = dstOffset;
+    copyInfo.size = size;
+    vkCmdCopyBuffer(copyCommandBuffer, src->buffer, dst->buffer, 1, &copyInfo);
+    LOGGER_WRITE_DEBUG("VulkanContext copy buffer: src: 0x%p, offset: %llu, dst: 0x%p, offset: %llu, size: %llu", src->buffer, srcOffset, dst->buffer, dstOffset, size);
+
+    EndOneTimeCommandBuffer(copyCommandBuffer);
 }
 
 void VulkanContext::BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer)

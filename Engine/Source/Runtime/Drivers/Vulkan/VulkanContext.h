@@ -125,7 +125,6 @@ public:
     void DestroyCommandBuffer(VkCommandBuffer commandBuffer);
 
     /* COMMAND */
-    void VCmdCopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size);
     void VCmdBindPipeline(VkCommandBuffer commandBuffer, VtxPipeline pipeline);
     void VCmdBindVertexBuffer(VkCommandBuffer commandBuffer, VtxBuffer buffer);
     void VCmdBindIndexBuffer(VkCommandBuffer commandBuffer, VtxBuffer buffer);
@@ -143,6 +142,7 @@ public:
     void EndRenderPass(VkCommandBuffer commandBuffer);
     void MapMemory(VtxBuffer buffer, void **ppData);
     void UnmapMemory(VtxBuffer buffer);
+    void CopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size);
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
     void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
     void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer commandBuffer);
