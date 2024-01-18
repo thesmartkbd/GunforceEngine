@@ -49,6 +49,9 @@
 /* 日志开启文件路径追踪 */
 // #define ENABLE_LOGGER_TRACE
 
+/* 数组大小 */
+#define ARRAY_SIZE(a) (sizeof(a[0]) * std::size(a))
+
 /* 强制内联 */
 #ifndef __forceinline__
 #  define __forceinline__ __forceinline

@@ -33,44 +33,38 @@
 # |* EMail:          thesmartkbd@hotmail.com                                          *|
 # |*                                                                                  *|
 # \* -------------------------------------------------------------------------------- */
-CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
-SET(CMAKE_CXX_STANDARD 23)
-PROJECT("GunforceEngine")
+cmake_minimum_required(VERSION 3.8)
+set(CMAKE_CXX_STANDARD 23)
+project("GunforceEngine")
 
-SET(COMPILER ${CMAKE_CXX_COMPILER_ID})
+set(COMPILER ${CMAKE_CXX_COMPILER_ID})
+set(GLFW_PATH Engine/Source/ThirdParty/glfw3)
+set(VULKAN_PATH Engine/Source/ThirdParty/vulkan)
 
-SET(GLFW_PATH "${PROJECT_SOURCE_DIR}/Engine/Source/ThirdParty/glfw3")
-SET(VULKAN_PATH "${PROJECT_SOURCE_DIR}/Engine/Source/ThirdParty/vulkan")
+include_directories(SYSTEM Engine/Source/Include)
+include_directories(SYSTEM Engine/Source/ThirdParty)
+include_directories(SYSTEM ${GLFW_PATH}/include)
+include_directories(SYSTEM ${VULKAN_PATH}/Include)
 
-INCLUDE_DIRECTORIES(SYSTEM
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Include"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/ThirdParty"
-  "${GLFW_PATH}/include"
-  "${VULKAN_PATH}/Include"
+include_directories(Engine/Source/Runtime)
+
+if(COMPILER STREQUAL "MSVC")
+  set(GLFW_LIBRARY_DIR ${GLFW_PATH}/lib-vc2022)
+else()
+  set(GLFW_LIBRARY_DIR ${GLFW_PATH}/lib-mingw-w64)
+endif()
+
+link_directories("${VULKAN_PATH}/Lib")
+link_directories(${GLFW_LIBRARY_DIR})
+
+add_executable(${PROJECT_NAME}
+  Engine/Source/Include/pch.cpp
+  Engine/Source/Runtime/Main.cpp
+  Engine/Source/Runtime/Window/Window.cpp
+  Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp
 )
 
-INCLUDE_DIRECTORIES(${PROJECT_NAME}
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime"
-)
-
-SET(GLFW_LIBRARY_DIR "${GLFW_PATH}/lib-mingw-w64")
-IF(COMPILER STREQUAL "MSVC")
-    LINK_DIRECTORIES("${GLFW_PATH}/lib-vc2022")
-ENDIF()
-
-LINK_DIRECTORIES(
-  "${VULKAN_PATH}/Lib"
-  ${GLFW_LIBRARY_DIR}
-)
-
-ADD_EXECUTABLE(${PROJECT_NAME}
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Include/pch.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Main.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Window/Window.cpp"
-  "${PROJECT_SOURCE_DIR}/Engine/Source/Runtime/Drivers/Vulkan/VulkanContext.cpp"
-)
-
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
   glfw3
   vulkan-1
 )

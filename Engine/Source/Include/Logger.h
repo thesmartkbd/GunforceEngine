@@ -51,7 +51,7 @@ namespace Logger
 #ifdef ENABLE_LOGGER_TRACE
         System::ConsoleWrite("%s %s%s%s [%s] %s(%d): %s", time, color, level, ASCII_COLOR_RESET, caller, file, line, tochr(vstrifmt(fmt, va)));
 #else
-        System::ConsoleWrite("%s %s%s%s: %s", time, color, level, ASCII_COLOR_RESET, tochr(vstrifmt(fmt, va)));
+        System::ConsoleWrite("%s [GunforceEngine] %s%s%s - %s", time, color, level, ASCII_COLOR_RESET, tochr(vstrifmt(fmt, va)));
 #endif
     }
 

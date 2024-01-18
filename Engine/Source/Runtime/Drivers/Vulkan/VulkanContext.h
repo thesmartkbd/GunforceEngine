@@ -46,7 +46,7 @@ struct VtxWindow_T {
     Vector<VkImage> images;
     Vector<VkImageView> imageViews;
     Vector<VkFramebuffer> framebuffers;
-    Vector<VkCommandBuffer> commandBuffer;
+    Vector<VkCommandBuffer> commandBuffers;
     VkSemaphore available;
     Window* window;
     /* capabilities */
@@ -79,9 +79,14 @@ struct VtxBuffer_T {
     VmaAllocation allocation; /* VmaAllocation */
 };
 
+struct VtxTexture2D_T {
+    VkImageView imageView;
+};
+
 VK_DEFINE_HANDLE(VtxWindow)
 VK_DEFINE_HANDLE(VtxPipeline)
 VK_DEFINE_HANDLE(VtxBuffer)
+VK_DEFINE_HANDLE(VtxTexture2D)
 
 struct Vertex {
     glm::vec3 pos;
@@ -112,7 +117,7 @@ public:
     void DestroyRenderPass(VkRenderPass renderPass);
     void CreateFramebuffer(VkRenderPass renderPass, VkImageView imageView, uint32_t width, uint32_t height, VkFramebuffer* pFramebuffer);
     void DestroyFramebuffer(VkFramebuffer framebuffer);
-    void CreateIndexBuffer(uint64_t size, uint64_t *pIndices, VtxBuffer *pBuffer);
+    void CreateIndexBuffer(uint64_t size, uint32_t *pIndices, VtxBuffer *pBuffer);
     void CreateVertexBuffer(uint64_t size, Vertex *pVertices, VtxBuffer *pBuffer);
     void CreateBuffer(uint64_t size, VkBufferUsageFlags usage, VtxMemoryAllocateType type, VtxBuffer *pBuffer);
     void DestroyBuffer(VtxBuffer buffer);
@@ -120,16 +125,19 @@ public:
     void DestroyCommandBuffer(VkCommandBuffer commandBuffer);
 
     /* OPERATE */
+    void PresentSubmitQueueKHR(VkSemaphore waitSemaphore, uint32_t index, VtxWindow window);
+    void SynchronizeSubmitQueue(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkPipelineStageFlags waitDstStageMask);
+    void QueueWaitIdle(VkQueue queue);
+    void DeviceWaitIdle();
     void AcquireNextImage(VtxWindow window, uint32_t *pIndex);
     void BeginRenderPass(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height, VkFramebuffer framebuffer, VkRenderPass renderPass);
     void EndRenderPass(VkCommandBuffer commandBuffer);
     void CopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size);
     void MapMemory(VtxBuffer buffer, void **ppData);
     void UnmapMemory(VtxBuffer buffer);
-    void DeviceWaitIdle();
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);
     void EndOneTimeCommandBuffer(VkCommandBuffer commandBuffer);
-    void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer *pCommandBuffer);
+    void BeginCommandBuffer(VkCommandBufferUsageFlags usage, VkCommandBuffer commandBuffer);
     void EndCommandBuffer(VkCommandBuffer commandBuffer);
 
 private:
@@ -141,7 +149,7 @@ private:
     void _InitializeVulkanContextRenderWindow();
     void _InitializeVulkanContextDescriptorPool();
 
-private:
+public:
     VkInstance m_Instance;
     VkSurfaceKHR m_Surface;
     VkDevice m_Device;

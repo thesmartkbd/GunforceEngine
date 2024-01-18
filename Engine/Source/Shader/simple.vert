@@ -9,7 +9,7 @@ layout(location = 1) out vec3 outColor;
 
 void main()
 {
+    gl_Position = vec4(inPosition, 1.0f);
     outPosition = inPosition;
     outColor = inColor;
-    gl_Position = vec4(inPosition, 1.0f);
 }

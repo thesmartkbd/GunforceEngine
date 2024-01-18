@@ -39,5 +39,7 @@ cmake-build-run
 .vs
 out
 __pycache__
-UpgradeLog.htm
 CMakePresets.json
+
+UpgradeLog.htm
+*.spv

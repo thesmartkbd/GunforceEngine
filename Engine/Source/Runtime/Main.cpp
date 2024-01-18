@@ -45,28 +45,56 @@ int main()
 	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
 	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 
+    VkSemaphore semaphore;
     VtxPipeline pipeline;
     VtxWindow windowV;
+    VtxBuffer vertexBuffer;
+    VtxBuffer indexBuffer;
+
+    std::vector<Vertex> vertices = {
+            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f,  -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f,  0.5f,  0.0f},  {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.0f},  {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+    };
+
+    std::vector<uint32_t> indices = {
+            0, 1, 2, 2, 3, 0
+    };
+
+    vulkanContext->CreateVertexBuffer(ARRAY_SIZE(vertices), std::data(vertices), &vertexBuffer);
+    vulkanContext->CreateIndexBuffer(ARRAY_SIZE(indices), std::data(indices), &indexBuffer);
 
     windowV = vulkanContext->GetCurrentContextVtxWindow();
+    vulkanContext->CreateSemaphoreV(&semaphore);
     vulkanContext->CreatePipeline("../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
 
 	while (!window->IsShouldClose()) {
+        uint32_t index;
         VkCommandBuffer commandBuffer;
-        vulkanContext->BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &commandBuffer);
+        vulkanContext->AcquireNextImage(windowV, &index);
+        commandBuffer = windowV->commandBuffers[index];
+        vulkanContext->BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, commandBuffer);
         {
-            uint32_t index;
-            vulkanContext->AcquireNextImage(windowV, &index);
             vulkanContext->BeginRenderPass(commandBuffer, windowV->width, windowV->height, windowV->framebuffers[index], windowV->renderPass);
             {
-                LOGGER_WRITE_INFO("acquire next image index: %u", index);
+                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline);
+                uint64_t offsets[] = { 0 };
+                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer->buffer, offsets);
+                vkCmdBindIndexBuffer(commandBuffer, indexBuffer->buffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(commandBuffer, std::size(indices), 1, 0, 0, 0);
             }
             vulkanContext->EndRenderPass(commandBuffer);
         }
         vulkanContext->EndCommandBuffer(commandBuffer);
+        vulkanContext->SynchronizeSubmitQueue(commandBuffer, windowV->available, semaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        vulkanContext->PresentSubmitQueueKHR(semaphore, index, windowV);
 
 		Window::PollEvents();
 	}
+
+    vulkanContext->DestroyPipeline(pipeline);
+    vulkanContext->DestroySemaphoreV(semaphore);
 
 	return 0;
 }

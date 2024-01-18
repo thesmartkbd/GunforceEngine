@@ -34,15 +34,14 @@
 #include <Gunforce.h>
 #include <IOUtils.h>
 
-#define VK_ERROR VkResult
-#define ERROR_FAIL(err) std::data(VkUtils::GetErrorReason(err))
+#define ERROR_FAIL_V_MMAP(err) std::data(VkUtils::GetErrorReason(err))
 
 namespace VkUtils
 {
     /* VK 分配器 */
     static VkAllocationCallbacks *Allocator = null;
 
-    static HashMap<VkResult, std::string> _VkResultKeyMap = {
+    static HashMap<VkResult, std::string> _VkResultMap = {
             { VK_SUCCESS, "VK_SUCCESS" },
             { VK_NOT_READY, "VK_NOT_READY" },
             { VK_TIMEOUT, "VK_TIMEOUT" },
@@ -111,7 +110,7 @@ namespace VkUtils
     /* 获取 Result 映射的值 */
     static std::string_view GetErrorReason(VkResult result)
     {
-        return _VkResultKeyMap[result];
+        return _VkResultMap[result];
     }
 
     static void EnumerateInstanceExtensionProperties(Vector<VkExtensionProperties> &properties)
@@ -142,7 +141,7 @@ namespace VkUtils
     {
         Vector<VkPhysicalDevice> devices;
         EnumeratePhysicalDevice(instance, devices);
-        *pPhysicalDevice = devices[0];
+        *pPhysicalDevice = devices[1];
     }
 
     static void GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties *pProperties, VkPhysicalDeviceFeatures *pFeatures)
@@ -196,6 +195,12 @@ namespace VkUtils
             LOGGER_WRITE_DEBUG("  Device:");
             Vector<VkPhysicalDevice> devices;
             EnumeratePhysicalDevice(instance, devices);
+            for (const auto &device : devices) {
+                VkPhysicalDeviceProperties properties;
+                vkGetPhysicalDeviceProperties(device, &properties);
+                LOGGER_WRITE_DEBUG("    - %s", properties.deviceName);
+            }
+
             LOGGER_WRITE_DEBUG("    physical device properties: ");
             for (const auto &device : devices) {
                 VkPhysicalDeviceProperties properties;
@@ -367,8 +372,9 @@ namespace VkUtils
         shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         shaderModuleCreateInfo.pCode = reinterpret_cast<uint32_t *>(buf);
         shaderModuleCreateInfo.codeSize = size;
-        VK_ERROR err = vkCreateShaderModule(device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
-        LOGGER_WRITE_INFO("Create shader module(VkShaderModule), filename: %s, device: 0x%p, err: %s", filename, device, ERROR_FAIL(err));
+        VkResult err;
+        err = vkCreateShaderModule(device, &shaderModuleCreateInfo, VkUtils::Allocator, pShaderModule);
+        LOGGER_WRITE_INFO("Create shader module(VkShaderModule), filename: %s, device: 0x%p, err: %s", filename, device, ERROR_FAIL_V_MMAP(err));
         IOUtils::Free(buf);
     }
 
