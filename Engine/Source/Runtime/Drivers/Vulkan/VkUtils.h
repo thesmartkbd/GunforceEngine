@@ -141,7 +141,7 @@ namespace VkUtils
     {
         Vector<VkPhysicalDevice> devices;
         EnumeratePhysicalDevice(instance, devices);
-        *pPhysicalDevice = devices[1];
+        *pPhysicalDevice = devices[0];
     }
 
     static void GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties *pProperties, VkPhysicalDeviceFeatures *pFeatures)

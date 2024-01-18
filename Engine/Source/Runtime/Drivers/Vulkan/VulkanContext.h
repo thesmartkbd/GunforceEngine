@@ -124,6 +124,15 @@ public:
     void CreateCommandBuffer(VkCommandBuffer *pCommandBuffer);
     void DestroyCommandBuffer(VkCommandBuffer commandBuffer);
 
+    /* COMMAND */
+    void VCmdCopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size);
+    void VCmdBindPipeline(VkCommandBuffer commandBuffer, VtxPipeline pipeline);
+    void VCmdBindVertexBuffer(VkCommandBuffer commandBuffer, VtxBuffer buffer);
+    void VCmdBindIndexBuffer(VkCommandBuffer commandBuffer, VtxBuffer buffer);
+    void VCmdDrawIndexed(VkCommandBuffer commandBuffer, uint64_t size);
+    void VCmdSetScissor(VkCommandBuffer commandBuffer, uint32_t w, uint32_t h);
+    void VCmdSetViewport(VkCommandBuffer commandBuffer, uint32_t w, uint32_t h);
+
     /* OPERATE */
     void PresentSubmitQueueKHR(VkSemaphore waitSemaphore, uint32_t index, VtxWindow window);
     void SynchronizeSubmitQueue(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkPipelineStageFlags waitDstStageMask);
@@ -132,7 +141,6 @@ public:
     void AcquireNextImage(VtxWindow window, uint32_t *pIndex);
     void BeginRenderPass(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height, VkFramebuffer framebuffer, VkRenderPass renderPass);
     void EndRenderPass(VkCommandBuffer commandBuffer);
-    void CopyBuffer(VtxBuffer src, uint64_t srcOffset, VtxBuffer dst, uint64_t dstOffset, uint64_t size);
     void MapMemory(VtxBuffer buffer, void **ppData);
     void UnmapMemory(VtxBuffer buffer);
     void BeginOneTimeCommandBuffer(VkCommandBuffer* pCommandBuffer);

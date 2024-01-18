@@ -78,11 +78,10 @@ int main()
         {
             vulkanContext->BeginRenderPass(commandBuffer, windowV->width, windowV->height, windowV->framebuffers[index], windowV->renderPass);
             {
-                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline);
-                uint64_t offsets[] = { 0 };
-                vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer->buffer, offsets);
-                vkCmdBindIndexBuffer(commandBuffer, indexBuffer->buffer, 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(commandBuffer, std::size(indices), 1, 0, 0, 0);
+                vulkanContext->VCmdBindPipeline(commandBuffer, pipeline);
+                vulkanContext->VCmdBindVertexBuffer(commandBuffer, vertexBuffer);
+                vulkanContext->VCmdBindIndexBuffer(commandBuffer, indexBuffer);
+                vulkanContext->VCmdDrawIndexed(commandBuffer, std::size(indices));
             }
             vulkanContext->EndRenderPass(commandBuffer);
         }
