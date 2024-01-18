@@ -34,7 +34,8 @@
 #include <Gunforce.h>
 #include <IOUtils.h>
 
-#define ERROR_FAIL_V_MMAP(err) std::data(VkUtils::GetErrorReason(err))
+#define ERROR_FAIL_V_MMAP(err) std::data(VkUtils::_GetVKErrorMessage(err))
+#define DESCRIPTOR_TYPE_V_MMAP(type) std::data(VkUtils::_GetVkDescriptorTypeMessage(type))
 
 namespace VkUtils
 {
@@ -102,16 +103,45 @@ namespace VkUtils
             { VK_RESULT_MAX_ENUM, "VK_RESULT_MAX_ENUM" },
     };
 
+    /* 获取 Result 映射的值 */
+    static std::string_view _GetVKErrorMessage(VkResult result)
+      {
+        return _VkResultMap[result];
+      }
+
+    static HashMap<VkDescriptorType, std::string> _VkDescriptorSetTypeMap = {
+            { VK_DESCRIPTOR_TYPE_SAMPLER, "VK_DESCRIPTOR_TYPE_SAMPLER" },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, "VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER" },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, "VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE" },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, "VK_DESCRIPTOR_TYPE_STORAGE_IMAGE" },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, "VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER" },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, "VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER" },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER" },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER" },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC" },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC" },
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, "VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT" },
+            { VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK, "VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK" },
+            { VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR" },
+            { VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV, "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV" },
+            { VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM, "VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM" },
+            { VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM, "VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM" },
+            { VK_DESCRIPTOR_TYPE_MUTABLE_EXT, "VK_DESCRIPTOR_TYPE_MUTABLE_EXT" },
+            { VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT, "VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT" },
+            { VK_DESCRIPTOR_TYPE_MUTABLE_VALVE, "VK_DESCRIPTOR_TYPE_MUTABLE_VALVE" },
+            { VK_DESCRIPTOR_TYPE_MAX_ENUM, "VK_DESCRIPTOR_TYPE_MAX_ENUM" },
+    };
+
+    /* 获取 VkDescriptorType 映射的值 */
+    static std::string_view _GetVkDescriptorTypeMessage(VkDescriptorType type)
+      {
+        return _VkDescriptorSetTypeMap[type];
+      }
+
     struct QueueFamilyIndices {
         uint32_t graphicsQueueFamily = 0;
         uint32_t presentQueueFamily = 0;
     };
-
-    /* 获取 Result 映射的值 */
-    static std::string_view GetErrorReason(VkResult result)
-    {
-        return _VkResultMap[result];
-    }
 
     static void EnumerateInstanceExtensionProperties(Vector<VkExtensionProperties> &properties)
     {

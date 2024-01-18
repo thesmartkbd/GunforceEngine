@@ -384,7 +384,7 @@ void VulkanContext::CreateRenderWindow(const VtxWindow oldRWindow, VtxWindow* pR
         imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = -1;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
@@ -915,7 +915,7 @@ void VulkanContext::_InitializeVulkanContextDescriptorPool()
 
     LOGGER_WRITE_DEBUG("  DescriptorPool size: ");
     for (const auto &item: poolSize)
-        LOGGER_WRITE_DEBUG("    type: %d, count: %d", item.type, item.descriptorCount);
+        LOGGER_WRITE_DEBUG("    type: %s, count: %d", DESCRIPTOR_TYPE_V_MMAP(item.type), item.descriptorCount);
     LOGGER_WRITE_DEBUG("  DescriptorPool max sets: %d", descriptorPoolCreateInfo.maxSets);
 
     VkResult err;
