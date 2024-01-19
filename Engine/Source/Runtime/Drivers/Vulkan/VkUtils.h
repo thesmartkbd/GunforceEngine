@@ -36,6 +36,7 @@
 
 #define ERROR_FAIL_V_MMAP(err) std::data(VkUtils::_GetVKErrorMessage(err))
 #define DESCRIPTOR_TYPE_V_MMAP(type) std::data(VkUtils::_GetVkDescriptorTypeMessage(type))
+#define PHYSICAL_DEVICE_TYPE_V_MMAP(type) std::data(VkUtils::_GetVkPhysicalDeviceTypeMessage(type))
 
 namespace VkUtils
 {
@@ -138,6 +139,21 @@ namespace VkUtils
         return _VkDescriptorSetTypeMap[type];
       }
 
+    static HashMap<VkPhysicalDeviceType, std::string> _VKPhysicalDeviceType = {
+            { VK_PHYSICAL_DEVICE_TYPE_OTHER, "VK_PHYSICAL_DEVICE_TYPE_OTHER" },
+            { VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU" },
+            { VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU" },
+            { VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU, "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU" },
+            { VK_PHYSICAL_DEVICE_TYPE_CPU, "VK_PHYSICAL_DEVICE_TYPE_CPU" },
+            { VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM, "VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM" },
+    };
+
+    /* 获取 VkPhysicalDeviceType 映射的值 */
+    static std::string_view _GetVkPhysicalDeviceTypeMessage(VkPhysicalDeviceType type)
+      {
+        return _VKPhysicalDeviceType[type];
+      }
+
     struct QueueFamilyIndices {
         uint32_t graphicsQueueFamily = 0;
         uint32_t presentQueueFamily = 0;
@@ -171,7 +187,7 @@ namespace VkUtils
     {
         Vector<VkPhysicalDevice> devices;
         EnumeratePhysicalDevice(instance, devices);
-        *pPhysicalDevice = devices[0];
+        *pPhysicalDevice = devices[1];
     }
 
     static void GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties *pProperties, VkPhysicalDeviceFeatures *pFeatures)
@@ -235,21 +251,24 @@ namespace VkUtils
             for (const auto &device : devices) {
                 VkPhysicalDeviceProperties properties;
                 vkGetPhysicalDeviceProperties(device, &properties);
-                LOGGER_WRITE_DEBUG("      - %s", properties.deviceName);
+                LOGGER_WRITE_DEBUG("      %s", properties.deviceName);
+                LOGGER_WRITE_DEBUG("        version: %u.%u.%u", VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
+                LOGGER_WRITE_DEBUG("        deviceID: %u", properties.deviceID);
+                LOGGER_WRITE_DEBUG("        deviceType: %s", PHYSICAL_DEVICE_TYPE_V_MMAP(properties.deviceType));
 
-                Vector<VkExtensionProperties> extensionProperties;
-                EnumerateDeviceExtensionProperties(device, extensionProperties);
-                /* 遍历 extension 属性列表 */
-                LOGGER_WRITE_DEBUG("        extension properties: ");
-                for (const auto &property : extensionProperties)
-                    LOGGER_WRITE_DEBUG("          - %s", property.extensionName);
-
-                Vector<VkLayerProperties > layerProperties;
-                EnumerateDeviceLayerProperties(device, layerProperties);
-                /* 遍历 layer 属性列表 */
-                LOGGER_WRITE_DEBUG("        layer properties: ");
-                for (const auto &property : layerProperties)
-                    LOGGER_WRITE_DEBUG("          - %s", property.layerName);
+//                Vector<VkExtensionProperties> extensionProperties;
+//                EnumerateDeviceExtensionProperties(device, extensionProperties);
+//                /* 遍历 extension 属性列表 */
+//                LOGGER_WRITE_DEBUG("        extension properties: ");
+//                for (const auto &property : extensionProperties)
+//                    LOGGER_WRITE_DEBUG("          - %s", property.extensionName);
+//
+//                Vector<VkLayerProperties > layerProperties;
+//                EnumerateDeviceLayerProperties(device, layerProperties);
+//                /* 遍历 layer 属性列表 */
+//                LOGGER_WRITE_DEBUG("        layer properties: ");
+//                for (const auto &property : layerProperties)
+//                    LOGGER_WRITE_DEBUG("          - %s", property.layerName);
             }
         }
 
