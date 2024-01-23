@@ -67,7 +67,7 @@ int main()
     
     windowV = vulkanContext->GetCurrentContextVtxWindow();
     vulkanContext->CreateSemaphoreV(&semaphore);
-    vulkanContext->CreatePipeline("../../../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
+    vulkanContext->CreatePipeline("../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
     
     while (!window->IsShouldClose()) {
         uint32_t index;
