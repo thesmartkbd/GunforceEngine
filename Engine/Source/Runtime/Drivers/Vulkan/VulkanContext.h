@@ -38,6 +38,8 @@ class Window;
 VK_DEFINE_HANDLE(VmaAllocator)
 VK_DEFINE_HANDLE(VmaAllocation)
 
+#define VULKAN_CONTEXT_API_VERSION VK_API_VERSION_1_3
+
 /* Vulkan render main window context */
 struct VtxWindow_T {
     VkSurfaceKHR surface;
@@ -133,8 +135,8 @@ public:
     void VCmdSetViewport(VkCommandBuffer commandBuffer, uint32_t w, uint32_t h);
 
     /* OPERATE */
-    void PresentSubmitQueueKHR(VkSemaphore waitSemaphore, uint32_t index, VtxWindow window);
-    void SynchronizeSubmitQueue(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkPipelineStageFlags waitDstStageMask);
+    void PresentQueueSubmit(VkSemaphore waitSemaphore, uint32_t index, VtxWindow window);
+    void CommandQueueSubmit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkSemaphore signalSemaphore, VkPipelineStageFlags waitDstStageMask);
     void QueueWaitIdle(VkQueue queue);
     void DeviceWaitIdle();
     void AcquireNextImage(VtxWindow window, uint32_t *pIndex);
@@ -167,7 +169,6 @@ public:
     VkDescriptorPool m_DescriptorPool;
 
     Window* m_Window;
-    uint32_t ApiVersion;
     VkPhysicalDevice m_PhysicalDevice;
     VkPhysicalDeviceProperties m_PhysicalDeviceProperties;
     VkPhysicalDeviceFeatures m_PhysicalDeviceFeatures;

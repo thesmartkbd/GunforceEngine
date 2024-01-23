@@ -48,6 +48,7 @@ namespace Logger
     {
         char time[32];
         Date::Format(time, "%Y-%m-%d %H:%M:%S", sizeof(time));
+
 #ifdef ENABLE_LOGGER_TRACE
         System::ConsoleWrite("%s %s%s%s [%s] %s(%d): %s", time, color, level, ASCII_COLOR_RESET, caller, file, line, tochr(vstrifmt(fmt, va)));
 #else

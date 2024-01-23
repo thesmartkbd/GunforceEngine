@@ -42,7 +42,7 @@ int main()
 	/* 设置控制台中文字符 */
 	system("chcp 65001");
 
-	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "枪神引擎");
+	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "GunforceEngine");
 	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 
     VkSemaphore semaphore;
@@ -67,7 +67,7 @@ int main()
 
     windowV = vulkanContext->GetCurrentContextVtxWindow();
     vulkanContext->CreateSemaphoreV(&semaphore);
-    vulkanContext->CreatePipeline("../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
+    vulkanContext->CreatePipeline("../../../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
 
 	while (!window->IsShouldClose()) {
         uint32_t index;
@@ -86,12 +86,14 @@ int main()
             vulkanContext->EndRenderPass(commandBuffer);
         }
         vulkanContext->EndCommandBuffer(commandBuffer);
-        vulkanContext->SynchronizeSubmitQueue(commandBuffer, windowV->available, semaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-        vulkanContext->PresentSubmitQueueKHR(semaphore, index, windowV);
+        vulkanContext->CommandQueueSubmit(commandBuffer, windowV->available, semaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        vulkanContext->PresentQueueSubmit(semaphore, index, windowV);
 
 		Window::PollEvents();
 	}
 
+    vulkanContext->DestroyBuffer(vertexBuffer);
+    vulkanContext->DestroyBuffer(indexBuffer);
     vulkanContext->DestroyPipeline(pipeline);
     vulkanContext->DestroySemaphoreV(semaphore);
 

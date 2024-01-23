@@ -35,16 +35,19 @@
 \* -------------------------------------------------------------------------------- */
 #pragma once
 
-#include <time.h>
 #include "Typedef.h"
+#include "System.h"
+
+#include <time.h>
+#include <chrono>
 
 namespace Date
 {
     /** 日期格式化 */
     __forceinline__
     static void Format(char *buf, const char *fmt, size_t size)
-    {
+      {
         std::time_t time = std::time(NULL);
         std::strftime(buf, size, fmt, std::localtime(&time));
-    }
+      }
 }
