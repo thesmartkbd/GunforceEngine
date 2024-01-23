@@ -40,10 +40,10 @@
 int main()
 {
 	/* 设置控制台中文字符 */
-	system("chcp 65001");
+    system("chcp 65001");
 
-	std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "GunforceEngine");
-	std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
+    std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "GunforceEngine");
+    std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
 
     VkSemaphore semaphore;
     VtxPipeline pipeline;
@@ -89,8 +89,8 @@ int main()
         vulkanContext->CommandQueueSubmit(commandBuffer, windowV->available, semaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         vulkanContext->PresentQueueSubmit(semaphore, index, windowV);
 
-		Window::PollEvents();
-	}
+        Window::PollEvents();
+    }
 
     vulkanContext->DestroyBuffer(vertexBuffer);
     vulkanContext->DestroyBuffer(indexBuffer);
