@@ -39,37 +39,37 @@
 
 int main()
 {
-	/* 设置控制台中文字符 */
+    /* 设置控制台中文字符 */
     system("chcp 65001");
-
+    
     std::unique_ptr<Window> window = std::make_unique<Window>(800, 600, "GunforceEngine");
     std::unique_ptr<VulkanContext> vulkanContext = std::make_unique<VulkanContext>(window.get());
-
+    
     VkSemaphore semaphore;
     VtxPipeline pipeline;
     VtxWindow windowV;
     VtxBuffer vertexBuffer;
     VtxBuffer indexBuffer;
-
+    
     std::vector<Vertex> vertices = {
             {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
             {{0.5f,  -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
             {{0.5f,  0.5f,  0.0f},  {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
             {{-0.5f, 0.5f,  0.0f},  {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
     };
-
+    
     std::vector<uint32_t> indices = {
             0, 1, 2, 2, 3, 0
     };
-
+    
     vulkanContext->CreateVertexBuffer(ARRAY_SIZE(vertices), std::data(vertices), &vertexBuffer);
     vulkanContext->CreateIndexBuffer(ARRAY_SIZE(indices), std::data(indices), &indexBuffer);
-
+    
     windowV = vulkanContext->GetCurrentContextVtxWindow();
     vulkanContext->CreateSemaphoreV(&semaphore);
     vulkanContext->CreatePipeline("../../../Engine/Source/Shader", "simple", windowV->renderPass, null, &pipeline);
-
-	while (!window->IsShouldClose()) {
+    
+    while (!window->IsShouldClose()) {
         uint32_t index;
         VkCommandBuffer commandBuffer;
         vulkanContext->AcquireNextImage(windowV, &index);
@@ -88,14 +88,14 @@ int main()
         vulkanContext->EndCommandBuffer(commandBuffer);
         vulkanContext->CommandQueueSubmit(commandBuffer, windowV->available, semaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         vulkanContext->PresentQueueSubmit(semaphore, index, windowV);
-
+    
         Window::PollEvents();
     }
-
+    
     vulkanContext->DestroyBuffer(vertexBuffer);
     vulkanContext->DestroyBuffer(indexBuffer);
     vulkanContext->DestroyPipeline(pipeline);
     vulkanContext->DestroySemaphoreV(semaphore);
-
-	return 0;
+    
+    return 0;
 }
