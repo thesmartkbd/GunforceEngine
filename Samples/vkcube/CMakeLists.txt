@@ -34,18 +34,18 @@
 # |*                                                                                  *|
 # \* -------------------------------------------------------------------------------- */
 cmake_minimum_required(VERSION 3.8)
-set(CMAKE_CXX_STANDARD 23)
-project("vkEnumeratePhysicalDevice")
+set(CMAKE_C_STANDARD 23)
+project(vkcube)
 
-set(VULKAN_PATH ../../Source/ThirdParty/vulkan)
+set(THIRD_PARTY_DIRECTORY ../../Source/ThirdParty)
 
-include_directories(SYSTEM ${VULKAN_PATH}/Include)
+include_directories(${THIRD_PARTY_DIRECTORY}/Vulkan/Include)
+include_directories(${THIRD_PARTY_DIRECTORY}/volk)
 
-link_directories("${VULKAN_PATH}/Lib")
-link_directories(${GLFW_LIBRARY_DIR})
+link_directories(${THIRD_PARTY_DIRECTORY}/Vulkan/Lib)
 
 add_executable(${PROJECT_NAME}
-  main.cpp
+    cube.c
 )
 
 target_link_libraries(${PROJECT_NAME}
