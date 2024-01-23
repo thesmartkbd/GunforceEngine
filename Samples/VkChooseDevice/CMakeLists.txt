@@ -35,17 +35,16 @@
 # \* -------------------------------------------------------------------------------- */
 cmake_minimum_required(VERSION 3.8)
 set(CMAKE_C_STANDARD 23)
-project(vkcube)
+project(VkChooseDeviceSample)
 
 set(THIRD_PARTY_DIRECTORY ../../Engine/Source/ThirdParty)
 
 include_directories(${THIRD_PARTY_DIRECTORY}/Vulkan/Include)
-include_directories(${THIRD_PARTY_DIRECTORY}/volk)
 
 link_directories(${THIRD_PARTY_DIRECTORY}/Vulkan/Lib)
 
 add_executable(${PROJECT_NAME}
-    cube.c
+    main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

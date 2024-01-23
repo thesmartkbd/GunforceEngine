@@ -3668,6 +3668,11 @@ static void demo_create_device(struct demo *demo) {
         .ppEnabledExtensionNames = (const char *const *)demo->extension_names,
         .pEnabledFeatures = NULL,  // If specific features are required, pass them in here
     };
+
+    printf("device extension list: \n");
+    for (int i = 0; i < demo->enabled_extension_count; i++)
+        printf("  - %s\n", demo->extension_names[i]);
+
     if (demo->separate_present_queue) {
         queues[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queues[1].pNext = NULL;
